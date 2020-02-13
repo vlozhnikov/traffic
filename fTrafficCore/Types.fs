@@ -8,10 +8,16 @@ module Types =
         | Empty
         | CrossRoad
         | TrafficLight
-        | Car
 
     type Point = { p: Position; t: Node }
+    let point p t =
+        { p = p; t = t }
 
-    type Road = { points: Point list }
+    type Road = { n: string; pl: Point list }
+        with
+            member r.append po =
+                { n=r.n; pl=po::r.pl }
+        end
 
-    type RoadNetwork = { roads: Road list }
+    let road n pl =
+        { n = n; pl = pl }
