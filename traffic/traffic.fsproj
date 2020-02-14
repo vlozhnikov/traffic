@@ -9,4 +9,7 @@
     <Compile Include="Program.fs" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\fTrafficCore\fTrafficCore.fsproj" />
+  </ItemGroup>
 </Project>
