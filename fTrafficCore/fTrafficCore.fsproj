@@ -1,12 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
-
   <ItemGroup>
-    <Compile Include="Types.fs" />
     <Compile Include="Utils.fs" />
+    <Compile Include="Road.fs" />
   </ItemGroup>
-
 </Project>

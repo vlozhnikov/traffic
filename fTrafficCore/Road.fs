@@ -1,6 +1,6 @@
 ﻿namespace fTrafficCore
 
-module Types =
+module Road =
 
     [<Measure>]
     type m // metr
@@ -8,7 +8,7 @@ module Types =
     // ---------------------------------------------
 
     // coordinate in the map
-    type Position = { x: float; y: float; z: float }
+    type Vertex = { x: float; y: float; z: float }
         with
             // returns true if two points are equal
             static member (==) (p1, p2) =
@@ -29,7 +29,7 @@ module Types =
         | TRAFFICLIGHT
 
     // point on the map. uses inside roads, etc
-    type Point = { p: Position; t: Node list }
+    type Point = { p: Vertex; t: Node list }
     let point (x, y, z) t =
         { p = position (x, y, z); t = t }
 
@@ -61,14 +61,17 @@ module Types =
                                           | Includes(_) -> true
                                           | _ -> false
                                )
+                |> List.toSeq
 
+            // returns crossroad points of road's list
             static member CrossRoads (roads: Road list) =
 
                 let rec inCross r roads res = 
                     match roads with
                     | h::t when h.n <> r.n ->
-                        let nextRes = Seq.append res (Road.CrossRoads2 r h)
-                        inCross r t nextRes
+                        Road.CrossRoads2 r h
+                            |> Seq.append res
+                            |> inCross r t
                     | _::t ->
                         inCross r t res
                     | [] -> res
@@ -102,3 +105,27 @@ module Types =
 
     let road n pl =
         { n = n; pl = pl }
+
+    // road's graph
+    type Edge = { u: Vertex; v: Vertex }
+    type Graph = { vertexs: seq<Vertex>; lines: seq<Edge>; }
+        with
+
+        static member fromRoads roads =
+
+            // find all public points
+            let crossroads = Road.CrossRoads roads
+
+            roads
+            |> List.iter (fun r ->
+                    crossroads
+                    |> Seq.iter (fun c ->
+                            (
+                                match r.TryFindPoint c.p with
+                                | Some(x) -> ()
+                                | _ -> ()
+                            )
+                       )
+               )
+
+        end

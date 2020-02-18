@@ -1,7 +1,7 @@
 ﻿// Learn more about F# at http://fsharp.org
 
 open System
-open fTrafficCore.Types
+open fTrafficCore.Road
 
 [<EntryPoint>]
 let main argv =
