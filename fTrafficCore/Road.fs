@@ -111,21 +111,37 @@ module Road =
     type Graph = { vertexs: seq<Vertex>; lines: seq<Edge>; }
         with
 
-        static member fromRoads roads =
+            static member fromRoads roads =
 
-            // find all public points
-            let crossroads = Road.CrossRoads roads
+                // returns true if two points are neighbors and placinn in one line
+                let path p1 p2 (roads: Road list) =
 
-            roads
-            |> List.iter (fun r ->
-                    crossroads
-                    |> Seq.iter (fun c ->
-                            (
-                                match r.TryFindPoint c.p with
-                                | Some(x) -> ()
-                                | _ -> ()
-                            )
-                       )
-               )
+                    let inLine = roads
+                                    |> List.tryFind (fun x ->
+                                                        let r1 = x.TryFindPoint p1
+                                                        let r2 = x.TryFindPoint p2
+
+                                                        match (r1, r2) with
+                                                        | (Some(_), Some(_)) -> true
+                                                        | _ -> false
+                                                    )
+
+                    match inLine with
+                    | Some(x) -> 
+                        let i1 = x.pl |> List.findIndex (fun i -> i.p == p1)
+                        let i2 = x.pl |> List.findIndex (fun i -> i.p == p2)
+
+                        // are these points neighbors?
+                        if abs(i1 - i2) > 1 then false
+                        else true
+                    | _ -> false
+
+                // find all vertexs
+                let crossboards = Road.CrossRoads roads
+                                    |> Seq.map (fun x -> x.p)
+
+                // make the graph
+                let graph = { vertexs = crossboards; lines = Seq.empty }
+                graph
 
         end
