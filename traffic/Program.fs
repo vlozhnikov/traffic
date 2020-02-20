@@ -73,10 +73,12 @@ let main argv =
                         point (7., 0., 0.) [END; COORDINATE; TRAFFICLIGHT];
                     ]
 
-    let length = rh1.Length
-    let crossrods = Road.CrossRoads [rh1; rh2; rh3; rh4; rv1; rv2; rv3]
+    let roads = [rh1; rh2; rh3; rh4; rv1; rv2; rv3]
+    //let crossrods = Road.CrossRoads roads
 
-    crossrods
-    |> Seq.iter (fun x -> printfn "position x: %f, y: %f" x.p.x x.p.y)
+    //crossrods
+    //|> Seq.iter (fun x -> printfn "position x: %f, y: %f" x.p.x x.p.y)
+
+    let g = Graph.fromRoads roads
 
     0 // return an integer exit code

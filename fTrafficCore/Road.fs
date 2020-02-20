@@ -13,6 +13,8 @@ module Road =
             // returns true if two points are equal
             static member (==) (p1, p2) =
                 p1.x = p2.x && p1.y = p2.y && p1.z = p2.z
+            static member (!=) (p1, p2) =
+                p1.x <> p2.x || p1.y <> p2.y || p1.z <> p2.z
         end
     let position (x, y, z) =
         { x=x; y=y; z=z }
@@ -111,37 +113,64 @@ module Road =
     type Graph = { vertexs: seq<Vertex>; lines: seq<Edge>; }
         with
 
+            // returns true if graph is empty
+            member g.IsEmpty = 
+                if (Seq.length g.vertexs) = 0 || (Seq.length g.lines) = 0 then true
+                else false
+
+            // initilize new graph by list of roads
             static member fromRoads roads =
 
-                // returns true if two points are neighbors and placinn in one line
-                let path p1 p2 (roads: Road list) =
+                // returns roads by vertex
+                let roadsByVertex v rl = 
+                    rl
+                    |> List.filter (fun r ->
+                                        let f = List.filter (fun p -> p.p == v) r.pl
+                                        if f.Length > 0 then true
+                                        else false
+                                   )
 
-                    let inLine = roads
-                                    |> List.tryFind (fun x ->
-                                                        let r1 = x.TryFindPoint p1
-                                                        let r2 = x.TryFindPoint p2
+                // returns micrographs by vertex and roads
+                let micrographByVertexRoads v rl =
+                    rl
+                    |> List.map (fun r ->
+                                    let ind0 = List.findIndex (fun f -> f.p == v) r.pl
+                                    match ind0 with
+                                    | x when x > 0 && x < r.pl.Length - 1 ->
+                                        { vertexs = [v]; lines = [{u = v; v = r.pl.[ind0-1].p}; {u = v; v = r.pl.[ind0+1].p}] }
+                                    | x when x > 0 && x = r.pl.Length - 1 ->
+                                        { vertexs = [v]; lines = [{u = v; v = r.pl.[ind0-1].p}] }
+                                    | x when x = 0 ->
+                                        { vertexs = [v]; lines = [{u = v; v = r.pl.[ind0+1].p}] }
+                                    | _ -> { vertexs = []; lines = [] } 
+                                )
+                    |> List.filter (fun f -> if f.IsEmpty then false else true)
 
-                                                        match (r1, r2) with
-                                                        | (Some(_), Some(_)) -> true
-                                                        | _ -> false
-                                                    )
+                // find all possibilities vertexs
+                let vertexs = Road.CrossRoads roads
 
-                    match inLine with
-                    | Some(x) -> 
-                        let i1 = x.pl |> List.findIndex (fun i -> i.p == p1)
-                        let i2 = x.pl |> List.findIndex (fun i -> i.p == p2)
-
-                        // are these points neighbors?
-                        if abs(i1 - i2) > 1 then false
-                        else true
-                    | _ -> false
-
-                // find all vertexs
-                let crossboards = Road.CrossRoads roads
-                                    |> Seq.map (fun x -> x.p)
+                // make seq of micrographs
+                let micrographs = vertexs
+                                    |> Seq.map (fun v ->
+                                                    let rv = roadsByVertex v.p roads
+                                                    let gl = micrographByVertexRoads v.p rv
+                                                    gl
+                                               )
+                // uncomment for printing of micrographs
+                //micrographs |> Seq.iter (fun gl ->
+                            //    printfn "MICRO GRAPHS"
+                            //    for g in gl do
+                            //        printfn "--------------------"
+                            //        printfn "VERTEXS"
+                            //        for ver in g.vertexs do
+                            //            printfn "vertex x = %f, y = %f" ver.x ver.y
+                            //        printfn "LINES"
+                            //        for lin in g.lines do
+                            //            printfn "u x = %f, y = %f, v x = %f y = %f" lin.u.x lin.u.y lin.v.x lin.v.y
+                            //)
 
                 // make the graph
-                let graph = { vertexs = crossboards; lines = Seq.empty }
+                let graph = { vertexs = Seq.empty; lines = Seq.empty }
                 graph
 
         end
