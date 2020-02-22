@@ -147,13 +147,13 @@ module Road =
                     |> List.filter (fun f -> if f.IsEmpty then false else true)
 
                 // find all possibilities vertexs
-                let vertexs = Road.CrossRoads roads
+                let vertexs = Road.CrossRoads roads |> Seq.map (fun v -> v.p)
 
                 // make seq of micrographs
                 let micrographs = vertexs
                                     |> Seq.map (fun v ->
-                                                    let rv = roadsByVertex v.p roads
-                                                    let gl = micrographByVertexRoads v.p rv
+                                                    let rv = roadsByVertex v roads
+                                                    let gl = micrographByVertexRoads v rv
                                                     gl
                                                )
                 // uncomment for printing of micrographs
@@ -169,8 +169,10 @@ module Road =
                             //            printfn "u x = %f, y = %f, v x = %f y = %f" lin.u.x lin.u.y lin.v.x lin.v.y
                             //)
 
+                // assymbly the graph from micrographs
+
                 // make the graph
-                let graph = { vertexs = Seq.empty; lines = Seq.empty }
+                let graph = { vertexs = vertexs; lines = Seq.empty }
                 graph
 
         end
