@@ -63,25 +63,25 @@ module Road =
                                           | Includes(_) -> true
                                           | _ -> false
                                )
-                |> List.toSeq
+                |> Set.ofSeq
 
             // returns crossroad points of road's list
-            static member CrossRoads (roads: Road list) =
+            static member CrossRoads (roads: List<Road>) =
 
                 let rec inCross r roads res = 
                     match roads with
                     | h::t when h.n <> r.n ->
                         Road.CrossRoads2 r h
-                            |> Seq.append res
+                            |> Set.union res
                             |> inCross r t
                     | _::t ->
                         inCross r t res
                     | [] -> res
 
                 roads
-                |> Seq.map (fun x -> inCross x roads Seq.empty)
-                |> Seq.collect (fun r -> r)
-                |> Seq.distinct
+                |> List.map (fun x -> inCross x roads Set.empty)
+                |> List.collect (fun i -> List.ofSeq i)
+                |> List.distinct
 
             // returns total length of road
             // sqrt((x2 - x2)^2 + (y2 - y1)^2 + (z2 - z1)^2)
@@ -110,69 +110,52 @@ module Road =
 
     // road's graph
     type Edge = { u: Vertex; v: Vertex }
-    type Graph = { vertexs: seq<Vertex>; lines: seq<Edge>; }
+    type Graph = { vertexs: Set<Vertex>; lines: Set<Edge>; }
         with
 
             // returns true if graph is empty
             member g.IsEmpty = 
-                if (Seq.length g.vertexs) = 0 || (Seq.length g.lines) = 0 then true
+                if (Set.count g.vertexs) = 0 || (Set.count g.lines) = 0 then true
                 else false
 
             // initilize new graph by list of roads
             static member fromRoads roads =
 
-                // returns roads by vertex
-                let roadsByVertex v rl = 
-                    rl
-                    |> List.filter (fun r ->
-                                        let f = List.filter (fun p -> p.p == v) r.pl
-                                        if f.Length > 0 then true
-                                        else false
-                                   )
+                let correspondenceMatrix (vs: List<Vertex>) (rs: Set<Road>) = 
 
-                // returns micrographs by vertex and roads
-                let micrographByVertexRoads v rl =
-                    rl
-                    |> List.map (fun r ->
-                                    let ind0 = List.findIndex (fun f -> f.p == v) r.pl
-                                    match ind0 with
-                                    | x when x > 0 && x < r.pl.Length - 1 ->
-                                        { vertexs = [v]; lines = [{u = v; v = r.pl.[ind0-1].p}; {u = v; v = r.pl.[ind0+1].p}] }
-                                    | x when x > 0 && x = r.pl.Length - 1 ->
-                                        { vertexs = [v]; lines = [{u = v; v = r.pl.[ind0-1].p}] }
-                                    | x when x = 0 ->
-                                        { vertexs = [v]; lines = [{u = v; v = r.pl.[ind0+1].p}] }
-                                    | _ -> { vertexs = []; lines = [] } 
-                                )
-                    |> List.filter (fun f -> if f.IsEmpty then false else true)
+                    let matrix = Array2D.init vs.Length vs.Length (fun _ _ -> (0))
+
+                    let inMatrix row col (r: Road) =
+
+                        let vr = vs.[row]
+                        let vc = vs.[col]
+                        let f1 = r.TryFindPoint vr
+                        let f2 = r.TryFindPoint vc
+
+                        match (f1, f2) with
+                        | (Some(x), Some(y)) ->
+                                                let i1 = List.findIndex (fun (f: Point) -> f.p == x.p) r.pl
+                                                let i2 = List.findIndex (fun (f: Point) -> f.p == y.p) r.pl
+
+                                                if abs(i1 - i2) <= 1 then
+                                                    matrix.[row, col] <- 1
+                        | _ -> ()
+
+                    for r in 0..vs.Length-1 do
+                        for c in 0..vs.Length-1 do
+                            if r <> c then
+                                rs |> Set.iter (fun i -> inMatrix r c i)
+
+                    matrix
 
                 // find all possibilities vertexs
-                let vertexs = Road.CrossRoads roads |> Seq.map (fun v -> v.p)
+                let vertexs = Road.CrossRoads roads |> List.map (fun f -> f.p)
+                let res = correspondenceMatrix vertexs (Set.ofList roads)
 
-                // make seq of micrographs
-                let micrographs = vertexs
-                                    |> Seq.map (fun v ->
-                                                    let rv = roadsByVertex v roads
-                                                    let gl = micrographByVertexRoads v rv
-                                                    gl
-                                               )
-                // uncomment for printing of micrographs
-                //micrographs |> Seq.iter (fun gl ->
-                            //    printfn "MICRO GRAPHS"
-                            //    for g in gl do
-                            //        printfn "--------------------"
-                            //        printfn "VERTEXS"
-                            //        for ver in g.vertexs do
-                            //            printfn "vertex x = %f, y = %f" ver.x ver.y
-                            //        printfn "LINES"
-                            //        for lin in g.lines do
-                            //            printfn "u x = %f, y = %f, v x = %f y = %f" lin.u.x lin.u.y lin.v.x lin.v.y
-                            //)
-
-                // assymbly the graph from micrographs
+                printfn "%A" res
 
                 // make the graph
-                let graph = { vertexs = vertexs; lines = Seq.empty }
+                let graph = { vertexs = Set.empty; lines = Set.empty }
                 graph
 
         end
