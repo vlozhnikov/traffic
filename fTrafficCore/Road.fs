@@ -21,13 +21,11 @@ module Road =
 
     // ---------------------------------------------
 
-    // returns 'Cross' if list of points contains some point 
+    // returns 'Includes' if list of points contains some point 
     let (|Includes|DoesntIncludes|) (point, list) = 
-        let tryPoint = List.tryFind (fun c2 ->
-                                        if point == c2 then
-                                            true
-                                        else
-                                            false) list
+        let tryPoint = List.tryFind (fun p ->
+                                        if point == p then true
+                                        else false) list
         match tryPoint with
             | Some(x) -> Includes x
             | _ -> DoesntIncludes
@@ -93,12 +91,12 @@ module Road =
 
     // road's graph
     type Edge = { u: Point; v: Point }
-    type Graph = { vertexs: Set<Point>; lines: Set<Edge>; }
+    type Graph = { vertexs: Set<Point>; edges: Set<Edge>; }
         with
 
             // returns true if graph is empty
             member g.IsEmpty = 
-                if (Set.count g.vertexs) = 0 || (Set.count g.lines) = 0 then true
+                if (Set.count g.vertexs) = 0 || (Set.count g.edges) = 0 then true
                 else false
 
             // initilize new graph by list of roads
@@ -138,7 +136,7 @@ module Road =
                 printfn "%A" res
 
                 // make the graph
-                let graph = { vertexs = Set.empty; lines = Set.empty }
+                let graph = { vertexs = Set.empty; edges = Set.empty }
                 graph
 
         end
