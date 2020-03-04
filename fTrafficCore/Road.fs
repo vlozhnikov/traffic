@@ -21,49 +21,34 @@ module Road =
 
     // ---------------------------------------------
 
-    // returns 'Includes' if list of points contains some point 
-    let (|Includes|DoesntIncludes|) (point, list) = 
-        let tryPoint = List.tryFind (fun p ->
+    // returns 'Contains' if set of points contains the point 
+    let (|Contains|DoesntContains|) (point, points) = 
+        let isExists = List.exists (fun p ->
                                         if point == p then true
-                                        else false) list
-        match tryPoint with
-            | Some(x) -> Includes x
-            | _ -> DoesntIncludes
+                                        else false) points
+        if isExists then Contains point
+        else DoesntContains
 
     // this is a road
     type Road = { name: string; points: Point list }
         with
-            // static member to append new point and returns new road
-            static member (+) (r, po) =
-                { name=r.name; points=r.points @ [po] }
+            static member Vertexs roads =
 
-            // static member finds public crossroads of road1 and road2
-            static member CrossRoads2 r1 r2 =
+                let res = List.fold (fun acc elem ->
+                                       let filtered = List.filter (fun f -> f.name <> elem.name) roads
+                                       List.fold (fun acc2 elem2 ->
+                                                     let points =
+                                                         List.filter (fun p ->
+                                                                         match (p, elem2.points) with
+                                                                         | Contains(x) -> not (List.exists ((==) x) acc)
+                                                                         | _ -> false
+                                                         ) elem.points
+                                                     acc2 @ points
+                                       ) acc filtered
+                           ) [] roads
 
-                r1.points
-                |> List.filter (fun c1 -> match (c1, r2.points) with
-                                          | Includes(_) -> true
-                                          | _ -> false
-                               )
-                |> Set.ofSeq
-
-            // returns crossroad points of road's list
-            static member CrossRoads (roads: List<Road>) =
-
-                let rec inCross r roads res = 
-                    match roads with
-                    | h::t when h.name <> r.name ->
-                        Road.CrossRoads2 r h
-                            |> Set.union res
-                            |> inCross r t
-                    | _::t ->
-                        inCross r t res
-                    | [] -> res
-
-                roads
-                |> List.map (fun x -> inCross x roads Set.empty)
-                |> List.collect (fun i -> List.ofSeq i)
-                |> List.distinct
+                res |> List.iteri (fun i f -> printfn "vertex %d x: %f, y: %f" (i+1) f.x f.y)
+                res
 
             // returns total length of road
             // sqrt((x2 - x2)^2 + (y2 - y1)^2 + (z2 - z1)^2)
@@ -81,7 +66,7 @@ module Road =
 
             // try find point on the road by position
             member r.TryFindPoint pos = match (pos, r.points) with
-                                            | Includes(x) -> Some(x)
+                                            | Contains(x) -> Some(x)
                                             | _ -> None
                 
         end
@@ -102,7 +87,7 @@ module Road =
             // initilize new graph by list of roads
             static member fromRoads roads =
 
-                let correspondenceMatrix (vs: List<Point>) (rs: Set<Road>) = 
+                let makeMatrix (vs: List<Point>) (rs: Set<Road>) = 
 
                     let matrix = Array2D.init vs.Length vs.Length (fun _ _ -> (0))
 
@@ -130,8 +115,8 @@ module Road =
                     matrix
 
                 // find all possibilities vertexs
-                let vertexs = Road.CrossRoads roads
-                let res = correspondenceMatrix vertexs (Set.ofList roads)
+                let vertexs = Road.Vertexs roads
+                let res = makeMatrix vertexs (Set.ofList roads)
 
                 printfn "%A" res
 
