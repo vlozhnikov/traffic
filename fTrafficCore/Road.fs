@@ -8,16 +8,16 @@ module Road =
     // ---------------------------------------------
 
     // coordinate in the map
-    type Point = { x: float; y: float; z: float }
+    type Point = { x: float; y: float }
         with
             // returns true if two points are equal
             static member (==) (p1, p2) =
-                p1.x = p2.x && p1.y = p2.y && p1.z = p2.z
+                p1.x = p2.x && p1.y = p2.y
             static member (!=) (p1, p2) =
-                p1.x <> p2.x || p1.y <> p2.y || p1.z <> p2.z
+                p1.x <> p2.x || p1.y <> p2.y
         end
-    let point (x, y, z) =
-        { x=x; y=y; z=z }
+    let point (x, y) =
+        { x=x; y=y }
 
     // ---------------------------------------------
 
@@ -59,15 +59,10 @@ module Road =
                     | [] -> l
                     | h::t ->
                         let nextHead = List.head t
-                        let nextLength = l + sqrt(pown (h.x - nextHead.x) 2 + pown (h.y - nextHead.y) 2 + pown (h.z - nextHead.z) 2)
+                        let nextLength = l + sqrt(pown (h.x - nextHead.x) 2 + pown (h.y - nextHead.y) 2(* + pown (h.z - nextHead.z) 2*))
                         inLength t nextLength
 
                 inLength r.points 0.
-
-            // try find point on the road by position
-            member r.TryFindPoint pos = match (pos, r.points) with
-                                            | Contains(x) -> Some(x)
-                                            | _ -> None
                 
         end
 
@@ -79,49 +74,56 @@ module Road =
     type Graph = { vertexs: Set<Point>; edges: Set<Edge>; }
         with
 
-            // returns true if graph is empty
-            member g.IsEmpty = 
-                if (Set.count g.vertexs) = 0 || (Set.count g.edges) = 0 then true
-                else false
+            static member ofRoads roads =
 
-            // initilize new graph by list of roads
-            static member fromRoads roads =
+                let makeMatrix (vertexs: Point list) (roads: Road list) = 
 
-                let makeMatrix (vs: List<Point>) (rs: Set<Road>) = 
+                    let matrix = Array2D.init vertexs.Length vertexs.Length (fun _ _ -> (0))
 
-                    let matrix = Array2D.init vs.Length vs.Length (fun _ _ -> (0))
+                    let inMatrix row col road =
 
-                    let inMatrix row col (r: Road) =
+                        let vertexFrom = vertexs.[row]
+                        let vertexTo = vertexs.[col]
 
-                        let vr = vs.[row]
-                        let vc = vs.[col]
-                        let f1 = r.TryFindPoint vr
-                        let f2 = r.TryFindPoint vc
+                        let u = match (vertexFrom, road.points) with
+                                    | Contains(x) -> Some(x)
+                                    | _ -> None
+                        let v = match (vertexTo, road.points) with
+                                    | Contains(x) -> Some(x)
+                                    | _ -> None
 
-                        match (f1, f2) with
+                        match (u, v) with
                         | (Some(x), Some(y)) ->
-                                                let i1 = List.findIndex (fun f -> f == x) r.points
-                                                let i2 = List.findIndex (fun f -> f == y) r.points
+                                let iu = List.findIndex ((==) x) road.points
+                                let iv = List.findIndex ((==) y) road.points
 
-                                                if abs(i1 - i2) <= 1 then
-                                                    matrix.[row, col] <- 1
+                                let isAnother = [(iu+1)..(iv-1)]
+                                                |> List.exists (fun i ->
+                                                                    (List.exists ((==) road.points.[i]) vertexs))
+
+                                if (not isAnother) && (iu < iv) then
+                                     matrix.[row, col] <- 1
                         | _ -> ()
 
-                    for r in 0..vs.Length-1 do
-                        for c in 0..vs.Length-1 do
-                            if r <> c then
-                                rs |> Set.iter (fun i -> inMatrix r c i)
+                    matrix
+                    |> Array2D.iteri (fun col row i ->
+                                        roads
+                                        |> List.iter (fun road ->
+                                                        if row <> col then 
+                                                            inMatrix row col road)
+                                     )
 
                     matrix
 
-                // find all possibilities vertexs
+                // get vertexs
                 let vertexs = Road.Vertexs roads
-                let res = makeMatrix vertexs (Set.ofList roads)
+                let res = makeMatrix vertexs roads
 
                 printfn "%A" res
+                //printfn "%A" (snd res)
 
                 // make the graph
-                let graph = { vertexs = Set.empty; edges = Set.empty }
-                graph
+                //let graph = { vertexs = Set.empty; edges = snd res }
+                //graph
 
         end
