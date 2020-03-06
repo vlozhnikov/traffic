@@ -97,11 +97,11 @@ module Road =
                                 let iu = List.findIndex ((==) x) road.points
                                 let iv = List.findIndex ((==) y) road.points
 
-                                let isAnother = [(iu+1)..(iv-1)]
+                                let isAnother = [(System.Math.Min (iu, iv) + 1)..(System.Math.Max (iu, iv) - 1)]
                                                 |> List.exists (fun i ->
                                                                     (List.exists ((==) road.points.[i]) vertexs))
 
-                                if (not isAnother) && (iu < iv) then
+                                if not isAnother then
                                      matrix.[row, col] <- 1
                         | _ -> ()
 
@@ -120,10 +120,4 @@ module Road =
                 let res = makeMatrix vertexs roads
 
                 printfn "%A" res
-                //printfn "%A" (snd res)
-
-                // make the graph
-                //let graph = { vertexs = Set.empty; edges = snd res }
-                //graph
-
         end

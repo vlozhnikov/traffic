@@ -8,7 +8,7 @@ open fTrafficCore.Road
 let main argv =
     printfn "Hello World from F#!"
 
-    let rh1 =
+    (*let rh1 =
         road "rh1" [
                         point (0., 7.);
                         point (1., 7.);
@@ -99,12 +99,50 @@ let main argv =
                         point (7., 0.);
                     ]
 
-    let roads = [rh1; rh2; rh3; rh4; rv1; rv2; rv3]
+    let roads = [rh1; rh2; rh3; rh4; rv1; rv2; rv3]*)
     //let crossrods = Road.CrossRoads roads
+
+    let r1 =
+        road "R1" [
+                        point (1., 1.);
+                        point (1., 2.);
+                        point (1., 3.);
+                        point (2., 4.);
+                        point (2., 5.);
+                        point (3., 6.);
+                        point (4., 6.);
+                        point (5., 5.);
+                        point (5., 4.);
+                        point (6., 3.);
+                        point (5., 2.);
+                        point (4., 2.);
+                        point (3., 1.);
+                    ]
+
+    let r2 =
+        road "R2" [
+                        point (0., 5.);
+                        point (1., 5.);
+                        point (2., 5.);
+                        point (3., 5.);
+                        point (4., 5.);
+                        point (5., 5.);
+                        point (6., 5.);
+                        point (7., 5.);
+                    ]
+
+    let r3 =
+        road "R3" [
+                        point (4., 3.);
+                        point (5., 2.);
+                        point (6., 1.);
+                    ]
+
+    let roads = [r1; r2; r3]
 
     //crossrods
     //|> Seq.iter (fun x -> printfn "position x: %f, y: %f" x.p.x x.p.y)
-
+    
     let g = Graph.ofRoads roads
 
     0 // return an integer exit code
