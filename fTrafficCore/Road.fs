@@ -74,6 +74,10 @@ module Road =
     type Graph = { vertexs: Set<Point>; edges: Set<Edge>; }
         with
 
+            member r.IsEmpty = 
+                if r.vertexs.Count = 0 || r.edges.Count = 0 then true
+                else false
+
             static member ofRoads roads =
 
                 let makeMatrix (vertexs: Point list) (roads: Road list) = 
@@ -119,5 +123,22 @@ module Road =
                 let vertexs = Road.Vertexs roads
                 let res = makeMatrix vertexs roads
 
-                printfn "%A" res
+                let edges = res
+                            |> Array2D.mapi (fun col row elem -> 
+                                                match elem with
+                                                | x when x <> 0 ->
+                                                    let u = vertexs.[row]
+                                                    let v = vertexs.[col]
+                                                    Some({ u = u; v = v })
+                                                | _ -> None
+                                            )
+                            |> Seq.cast<Edge option>
+                            |> Seq.filter (fun f -> f.IsSome)
+                            |> Seq.map (fun f -> f.Value)
+                            |> Set.ofSeq
+
+                //printfn "%A" res
+                edges |> Set.iter (fun f -> printfn "u x = %f, y = %f; v x = %f, y = %f" f.u.x f.u.y f.v.x f.v.y)
+
+                { vertexs = Set.ofList vertexs; edges = edges }
         end
