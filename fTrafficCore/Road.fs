@@ -47,7 +47,7 @@ module Road =
                                        ) acc filtered
                            ) [] roads
 
-                res |> List.iteri (fun i f -> printfn "vertex %d x: %f, y: %f" (i+1) f.x f.y)
+                //res |> List.iteri (fun i f -> printfn "vertex %d x: %f, y: %f" (i+1) f.x f.y)
                 res
 
             // returns total length of road
@@ -123,7 +123,7 @@ module Road =
                 let vertexs = Road.Vertexs roads
                 let res = makeMatrix vertexs roads
 
-                let edges = res
+                (*let edges = res
                             |> Array2D.mapi (fun col row elem -> 
                                                 match elem with
                                                 | x when x <> 0 ->
@@ -140,5 +140,7 @@ module Road =
                 //printfn "%A" res
                 edges |> Set.iter (fun f -> printfn "u x = %f, y = %f; v x = %f, y = %f" f.u.x f.u.y f.v.x f.v.y)
 
-                { vertexs = Set.ofList vertexs; edges = edges }
+                { vertexs = Set.ofList vertexs; edges = edges }*)
+
+                res
         end

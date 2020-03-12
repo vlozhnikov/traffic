@@ -11,5 +11,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\fTrafficCore\fTrafficCore.fsproj" />
+    <ProjectReference Include="..\TerminalView\TerminalView.csproj" />
   </ItemGroup>
 </Project>

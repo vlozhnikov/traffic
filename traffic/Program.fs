@@ -2,6 +2,7 @@
 
 open System
 open fTrafficCore.Road
+open TerminalView
 
 
 [<EntryPoint>]
@@ -142,7 +143,14 @@ let main argv =
 
     //crossrods
     //|> Seq.iter (fun x -> printfn "position x: %f, y: %f" x.p.x x.p.y)
-    
+
     let g = Graph.ofRoads roads
+
+    let terminal = new TerminalView()
+    terminal.Width <- Array2D.length1 g
+    terminal.Height <- Array2D.length2 g
+    terminal.Fps <- 30
+
+    terminal.Start()
 
     0 // return an integer exit code
