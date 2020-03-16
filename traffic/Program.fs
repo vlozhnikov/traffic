@@ -1,6 +1,7 @@
 ﻿// Learn more about F# at http://fsharp.org
 
 open System
+open fTrafficCore
 open fTrafficCore.Road
 open TerminalView
 
@@ -144,13 +145,37 @@ let main argv =
     //crossrods
     //|> Seq.iter (fun x -> printfn "position x: %f, y: %f" x.p.x x.p.y)
 
-    let g = Graph.ofRoads roads
+    //let g = Graph.ofRoads roads
 
-    let terminal = new TerminalView()
-    terminal.Width <- Array2D.length1 g
-    terminal.Height <- Array2D.length2 g
-    terminal.Fps <- 30
+    //let terminal = new TerminalView()
+    //terminal.Width <- Array2D.length1 g
+    //terminal.Height <- Array2D.length2 g
+    //terminal.Fps <- 30
 
-    terminal.Start()
+    //terminal.Start()
+
+    // test matrixs 
+
+    let zeroMatrix = Matrix.zero 5 5
+    printfn "%A" zeroMatrix
+
+    let unitMatrix = Matrix.unit 5 5
+    printfn "%A" unitMatrix
+
+    let array2d = array2D [
+                            [01;02;03;04;05;06]
+                            [07;08;09;10;11;12]
+                            [13;14;15;16;17;18]
+                            [19;20;21;22;23;24]
+                          ]
+
+    let matrix = Matrix.ofArray2D array2d
+    let triangular = Matrix.triangular matrix
+    let diagonal = Matrix.diagonal matrix
+    let square = Matrix.square triangular
+
+    printfn "%A" triangular.values
+    printfn "%A" diagonal.values
+    printfn "%A" square.values
 
     0 // return an integer exit code
