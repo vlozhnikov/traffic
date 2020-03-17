@@ -97,10 +97,8 @@ module Matrix =
                 let r = fst dim
                 let c = snd dim
 
-                let unit = Array2D.init r c (fun x y -> if x = y then 1 else 0)
-                let unitMatrix = { values = unit }
-
-                value*unitMatrix + matrix
+                let unit = Matrix.E r c
+                value*unit + matrix
 
             // substration of matrixs
             static member (-) (matrix1: Matrix, matrix2: Matrix) = 
