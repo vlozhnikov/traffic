@@ -248,3 +248,16 @@ let MatrixTest2() =
     printfn "origin2 = \n %A" A94.values
 
     printfn "is same = \n %A" R92
+
+    //--------------------
+    let a10 = array2D [[1;2;3]
+                       [4;5;6]
+                       [7;8;9]
+                       [10;11;12]]
+
+    let A10 = Matrix.ofArray2D a10
+    let R10 = Matrix.rotate180 A10
+
+    printfn "//--------------------"
+    printfn "origin = \n %A" A10.values
+    printfn "rotate180 = \n %A" R10.values

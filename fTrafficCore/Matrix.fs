@@ -9,6 +9,10 @@ module Matrix =
             static member ofArray2D (values: int [,]) = 
                 { values = values }
 
+            static member clone matrix =
+                let cValues = Array2D.copy matrix.values
+                { values = cValues }
+
             // creates zero matrix
             static member O r c =
                 let array2d = Array2D.zeroCreate r c
@@ -151,4 +155,41 @@ module Matrix =
 
                 let powMatrix = inRecPow matrix value
                 { values = powMatrix.values }
+
+            static member rotate90 matrix =
+
+                let dim = Matrix.sizes matrix
+                let rows = fst dim
+                let cols = snd dim
+
+                let transpose = Matrix.T matrix
+                for r in [0..rows-1] do
+                    let row = matrix.values.[r,*]
+                    transpose.values.[*,cols-r] <- row
+
+                transpose
+
+            static member rotate270 matrix =
+
+                let dim = Matrix.sizes matrix
+                let rows = fst dim
+                let cols = snd dim
+                
+                let transpose = Matrix.T matrix
+                for r in [0..rows-1] do
+                    let row = Array.rev matrix.values.[r,*]
+                    transpose.values.[*,r] <- row
+
+                transpose
+
+            static member rotate180 matrix =
+                let dim = Matrix.sizes matrix
+                let rows = fst dim
+
+                let rMatrix = Matrix.clone matrix
+                for r in [0..rows-1] do
+                    let col = Array.rev matrix.values.[*,r]
+                    rMatrix.values.[r,*] <- col
+
+                rMatrix
         end
