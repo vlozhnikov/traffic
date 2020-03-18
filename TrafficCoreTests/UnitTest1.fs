@@ -14,6 +14,8 @@ let MatrixTest() =
 
     printfn ""
 
+    let AO = Matrix.O 5 5
+
     //--------------------
     let a1 = array2D [[1;0;2]
                       [3;1;0]]
@@ -85,6 +87,20 @@ let MatrixTest() =
     let R6 = Matrix.T A6
     printfn "A6->T = \n %A" R6.values
 
+    //--------------------
+    let a7 = array2D [[2;3]
+                      [1;-5]
+                      [0;6]]
+    let A7 = Matrix.ofArray2D a7
+
+    let b7 = array2D [[-3;3]
+                      [1;7]
+                      [2;0]]
+    let B7 = Matrix.ofArray2D b7
+
+    let R7 = A7+B7
+    printfn "A7+B7 =\n %A" R7.values
+
 [<Test>]
 let MatrixTest2() =
 
@@ -125,7 +141,7 @@ let MatrixTest2() =
                       [7;8;9]
                       [10;11;12]]
     let A5 = Matrix.ofArray2D a5
-    let R5 = Matrix.square A5
+    let R5 = Matrix.toSquare A5
     printfn "//--------------------"
     printfn "origin = \n %A" A5.values
     printfn "square = \n %A" R5.values
@@ -215,7 +231,8 @@ let MatrixTest2() =
 
     let a93 = array2D [[1;2;3]
                        [4;5;6]
-                       [7;8;9]]
+                       [7;8;-9]
+                       [10;11;12]]
     let a94 = array2D [[1;2;3]
                        [4;5;6]
                        [7;8;9]

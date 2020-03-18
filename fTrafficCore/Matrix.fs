@@ -30,7 +30,7 @@ module Matrix =
                 { values = diagonal }
 
             // creates square matrix
-            static member square matrix =
+            static member toSquare matrix =
 
                 let dim = Matrix.sizes matrix
                 let colCount: int = snd dim
@@ -38,10 +38,7 @@ module Matrix =
                 let length = System.Math.Min (colCount, rowCount)
 
                 let zero = Array2D.zeroCreate length length
-                let square = zero |> Array2D.mapi (fun x y _ ->
-                                                      let i = y*length+x
-                                                      matrix.values.[x, y]
-                                                  )
+                let square = zero |> Array2D.mapi (fun x y _ -> matrix.values.[x, y])
                 { values = square }
 
             // transpose of matrix
@@ -74,10 +71,10 @@ module Matrix =
 
                 if not (Matrix.isEquallySized matrix1 matrix2) then false
                 else
-                    matrix1.values
-                        |> Array2D.mapi (fun x y v -> if matrix2.values.[x, y] <> v then false else true)
-                        |> Seq.cast<bool>
-                        |> Seq.fold (fun acc elem -> acc && elem) true
+                    not (matrix1.values
+                         |> Array2D.mapi (fun x y v -> if matrix2.values.[x, y] <> v then false else true)
+                         |> Seq.cast<bool>
+                         |> Seq.contains false)
 
             // sum two matrixs
             static member (+) (matrix1, matrix2) =
