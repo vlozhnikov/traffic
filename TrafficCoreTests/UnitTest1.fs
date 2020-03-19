@@ -119,7 +119,7 @@ let MatrixTest2() =
                       [7;8;9]
                       [10;11;12]]
     let A3 = Matrix.ofArray2D a3
-    let R3 = Matrix.triangular A3
+    let R3 = Matrix.T A3
     printfn "//--------------------"
     printfn "origin = \n %A" A3.values
     printfn "triangular = \n %A" R3.values
@@ -152,7 +152,7 @@ let MatrixTest2() =
                       [7;8;9]
                       [10;11;12]]
     let A6 = Matrix.ofArray2D a6
-    let R6 = Matrix.T A6
+    let R6 = Matrix.transpose A6
     printfn "//--------------------"
     printfn "origin = \n %A" A6.values
     printfn "transpose = \n %A" R6.values
@@ -256,8 +256,13 @@ let MatrixTest2() =
                        [10;11;12]]
 
     let A10 = Matrix.ofArray2D a10
-    let R10 = Matrix.rotate180 A10
+
+    let R10 = Matrix.rotate90 A10
+    let R11 = Matrix.rotate180 A10
+    let R12 = Matrix.rotate270 A10
 
     printfn "//--------------------"
     printfn "origin = \n %A" A10.values
-    printfn "rotate180 = \n %A" R10.values
+    printfn "rotate90 = \n %A" R10.values
+    printfn "rotate180 = \n %A" R11.values
+    printfn "rotate270 = \n %A" R12.values

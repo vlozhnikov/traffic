@@ -13,6 +13,13 @@ module Matrix =
                 let cValues = Array2D.copy matrix.values
                 { values = cValues }
 
+            static member cloneO matrix =
+                let dim = Matrix.sizes matrix
+                let colCount: int = snd dim
+                let rowCount: int = fst dim
+
+                Matrix.O rowCount colCount
+
             // creates zero matrix
             static member O r c =
                 let array2d = Array2D.zeroCreate r c
@@ -24,7 +31,7 @@ module Matrix =
                 { values = array2d }
 
             // creates triangular matrix
-            static member triangular matrix =
+            static member T matrix =
                 let triangular = matrix.values |> Array2D.mapi (fun x y v -> if y < x then 0 else v)
                 { values = triangular }
 
@@ -46,7 +53,7 @@ module Matrix =
                 { values = square }
 
             // transpose of matrix
-            static member T matrix =
+            static member transpose matrix =
                 let dim = Matrix.sizes matrix
                 let rows = fst dim
                 let cols = snd dim
@@ -54,6 +61,14 @@ module Matrix =
                 let tMatrix = Matrix.O cols rows
                 matrix.values |> Array2D.iteri(fun x y v -> tMatrix.values.[y, x] <- v)
 
+                tMatrix
+
+            static member transposeO matrix =
+                let dim = Matrix.sizes matrix
+                let rows = fst dim
+                let cols = snd dim
+
+                let tMatrix = Matrix.O cols rows
                 tMatrix
 
             // returns sizes of matrix
@@ -162,7 +177,7 @@ module Matrix =
                 let rows = fst dim
                 let cols = snd dim
 
-                let transpose = Matrix.T matrix
+                let transpose = Matrix.transposeO matrix
                 for r in [0..rows-1] do
                     let row = matrix.values.[r,*]
                     transpose.values.[*,cols-r] <- row
@@ -174,8 +189,8 @@ module Matrix =
                 let dim = Matrix.sizes matrix
                 let rows = fst dim
                 let cols = snd dim
-                
-                let transpose = Matrix.T matrix
+
+                let transpose = Matrix.transposeO matrix
                 for r in [0..rows-1] do
                     let row = Array.rev matrix.values.[r,*]
                     transpose.values.[*,r] <- row
@@ -184,12 +199,12 @@ module Matrix =
 
             static member rotate180 matrix =
                 let dim = Matrix.sizes matrix
-                let rows = fst dim
+                let cols = snd dim
 
-                let rMatrix = Matrix.clone matrix
-                for r in [0..rows-1] do
+                let rMatrix = Matrix.cloneO matrix
+                for r in [0..cols-1] do
                     let col = Array.rev matrix.values.[*,r]
-                    rMatrix.values.[r,*] <- col
+                    rMatrix.values.[*,r] <- col
 
                 rMatrix
         end
