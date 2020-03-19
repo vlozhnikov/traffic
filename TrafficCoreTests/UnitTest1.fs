@@ -1,7 +1,7 @@
 module TrafficCoreTests
 
 open NUnit.Framework
-open fTrafficCore.Matrix
+open fTrafficCore
 
 [<SetUp>]
 let Setup() = ()
