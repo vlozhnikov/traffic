@@ -266,3 +266,78 @@ let MatrixTest2() =
     printfn "rotate90 = \n %A" R10.values
     printfn "rotate180 = \n %A" R11.values
     printfn "rotate270 = \n %A" R12.values
+
+[<Test>]
+let MatrixTest3() =
+
+    let a1 = array2D [[3;-7]
+                      [-2;5]]
+    let A1 = Matrix.ofArray2D a1
+    let det1 = Matrix.determinant A1
+
+    printfn "//--------------------"
+    printfn "origin =\n %A" A1.values
+    printfn "det = %d" det1
+
+    //--------------------
+
+    let a2 = array2D [[1;-1;1]
+                      [2;1;1]
+                      [1;1;2]]
+    let A2 = Matrix.ofArray2D a2
+    let det2 = Matrix.determinant A2
+
+    printfn "//--------------------"
+    printfn "origin =\n %A" A2.values
+    printfn "det = %d" det2
+
+    //--------------------
+
+    let a3 = array2D [[1;0;5;-7]
+                      [2;6;4;1]
+                      [1;-3;1;-2]
+                      [2;2;2;1]]
+    let A3 = Matrix.ofArray2D a3
+    let det3 = Matrix.determinant A3
+
+    printfn "//--------------------"
+    printfn "origin =\n %A" A3.values
+    printfn "det = %d" det3
+
+    //--------------------
+
+    let a4 = array2D [[1;-1;3;4;5]
+                      [6;7;8;9;5]
+                      [4;8;7;6;5]
+                      [4;3;-7;1;1]
+                      [2;3;4;5;6]]
+    let A4 = Matrix.ofArray2D a4
+    let det4 = Matrix.determinant A4
+
+    printfn "//--------------------"
+    printfn "origin =\n %A" A4.values
+    printfn "det = %d" det4
+
+    //--------------------
+
+    let a4 = array2D [[-3;1;9;0;-6;-6]
+                      [2;2;2;1;-1;2]
+                      [0;8;7;1;20;-1]
+                      [-1;-2;-3;10;89;98]
+                      [-1;-9;-18;-7;-2;3]
+                      [1;2;3;4;5;6]]
+    let A4 = Matrix.ofArray2D a4
+    let det4 = Matrix.determinant A4
+
+    printfn "//--------------------"
+    printfn "origin =\n %A" A4.values
+    printfn "det = %d" det4
+
+    //--------------------
+
+    let A5 = Matrix.transpose A4
+    let det5 = Matrix.determinant A5
+
+    printfn "//--------------------"
+    printfn "transppose =\n %A" A5.values
+    printfn "det = %d" det5

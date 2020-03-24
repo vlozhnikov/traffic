@@ -9,6 +9,21 @@ type Matrix = { values: int[,] }
         static member ofArray2D (values: int [,]) = 
             { values = values }
 
+        /// <summary>Init matrix by one-dimension list values</summary>
+        /// <param = "matrix">Matrix</param>
+        /// <param = "rows">Count of rows</param>
+        /// <param = "cols">Count of cold</param>
+        /// <returns>Matrix</returns>
+        static member ofArray rows cols (values: int list) = 
+            let matrix = Matrix.O rows cols
+            let values = matrix.values
+                         |> Array2D.mapi (fun x y v ->
+                                              let index = x * cols + y
+                                              values.[index]
+                                         )
+
+            { values = values }
+
         /// <summary>Clone matrix from another matrix</summary>
         /// <param name="matrix">Origin matrix</param>
         /// <returns>Matrix</returns>
@@ -277,4 +292,78 @@ type Matrix = { values: int[,] }
                 rMatrix.values.[*,r] <- col
 
             rMatrix
+
+        /// <summary>
+        /// Calculates 2x matrix determinant
+        /// </summary>
+        /// <param name="matrix">Matrix</param>
+        /// <returns>Determinant value</returns>
+        static member det2x matrix =
+            let dim = Matrix.sizes matrix
+            if (fst dim) = 2 && (snd dim) = 2 then
+                let values = matrix.values
+                values.[0,0]*values.[1,1]-values.[0,1]*values.[1,0]
+            else failwith "Matrix is not 2x"
+
+        /// <summary>
+        /// Calculates 3x matrix determinant
+        /// </summary>
+        /// <param name="matrix">Matrix</param>
+        /// <returns>Determinant value</returns>
+        static member det3x matrix =
+            let dim = Matrix.sizes matrix
+            if (fst dim) = 3 && (snd dim) = 3 then
+                let values = matrix.values
+                values.[0,0]*values.[1,1]*values.[2,2]+
+                values.[2,0]*values.[0,1]*values.[1,2]+
+                values.[1,0]*values.[2,1]*values.[0,2]-
+                values.[0,2]*values.[1,1]*values.[2,0]-
+                values.[1,0]*values.[0,1]*values.[2,2]-
+                values.[2,1]*values.[1,2]*values.[0,0]
+            else failwith "Matrix is not 3x"
+
+        /// <summary>
+        /// Calculates matrix determinant
+        /// </summary>
+        /// <param name="matrix">Matrix</param>
+        /// <returns>Determinant value</returns>
+        static member determinant matrix = 
+            let dim = Matrix.sizes matrix
+            let rows = fst dim
+            let cols = snd dim
+
+            if rows <> cols then failwith "the matrix should be square"
+            else
+
+                // returns matrix with cutted row and col
+                let cutRowCol m r c = 
+                    let d = Matrix.sizes m
+
+                    let matrix = m.values
+                                 |> Array2D.mapi (fun x y v -> if x <> r && y <> c then Some(v) else None)
+                                 |> Seq.cast<int option>
+                                 |> Seq.filter (fun v -> v.IsSome)
+                                 |> Seq.map (fun v -> v.Value)
+                                 |> List.ofSeq
+                                 |> Matrix.ofArray (fst d - 1) (snd d - 1)
+                    matrix
+
+                let rec recDet m = 
+                    let d = Matrix.sizes m
+                    match (fst d, snd d) with
+                    | 3, 3 -> (Matrix.det3x m)
+                    | 2, 2 -> (Matrix.det2x m)
+                    | x, y when x > 3 && y > 3 ->
+                        m.values.[0,*] // caclulate the matrix determinant by first row
+                        |> Array.mapi (fun index elem ->
+                            if elem = 0 then 0
+                            else
+                                let minorMatrix = cutRowCol m 0 index
+                                elem*(if ((0 + index) % 2) = 0 then 1 else -1)*(recDet minorMatrix)
+                            )
+                        |> Array.sum
+                    | _, _ -> m.values.[0,0]
+
+                let det = recDet matrix
+                det
     end
