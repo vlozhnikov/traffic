@@ -63,8 +63,8 @@ type Matrix = { values: int[,] }
         /// <param name="matrix">Origin matrix</param>
         /// <returns>Triangular matrix</returns>
         static member T matrix =
-            let triangular = matrix.values |> Array2D.mapi (fun x y v -> if y < x then 0 else v)
-            { values = triangular }
+            let values = matrix.values |> Array2D.mapi (fun x y v -> if y < x then 0 else v)
+            { values = values }
 
         /// <summary>
         /// Create diagonal matrix (cells out from main diagonal filled with 0) from another matrix
@@ -298,7 +298,7 @@ type Matrix = { values: int[,] }
         /// </summary>
         /// <param name="matrix">Matrix</param>
         /// <returns>Determinant value</returns>
-        static member det2x matrix =
+        static member determinant2x matrix =
             let dim = Matrix.sizes matrix
             if (fst dim) = 2 && (snd dim) = 2 then
                 let values = matrix.values
@@ -310,7 +310,7 @@ type Matrix = { values: int[,] }
         /// </summary>
         /// <param name="matrix">Matrix</param>
         /// <returns>Determinant value</returns>
-        static member det3x matrix =
+        static member determinant3x matrix =
             let dim = Matrix.sizes matrix
             if (fst dim) = 3 && (snd dim) = 3 then
                 let values = matrix.values
@@ -335,7 +335,7 @@ type Matrix = { values: int[,] }
             if rows <> cols then failwith "the matrix should be square"
             else
 
-                // returns matrix with cutted row and col
+                // cut row and col from matrix
                 let cutRowCol m r c = 
                     let d = Matrix.sizes m
 
@@ -351,8 +351,8 @@ type Matrix = { values: int[,] }
                 let rec recDet m = 
                     let d = Matrix.sizes m
                     match (fst d, snd d) with
-                    | 3, 3 -> (Matrix.det3x m)
-                    | 2, 2 -> (Matrix.det2x m)
+                    | 3, 3 -> (Matrix.determinant3x m)
+                    | 2, 2 -> (Matrix.determinant2x m)
                     | x, y when x > 3 && y > 3 ->
                         m.values.[0,*] // caclulate the matrix determinant by first row
                         |> Array.mapi (fun index elem ->
