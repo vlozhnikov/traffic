@@ -35,11 +35,8 @@ type Matrix = { values: int[,] }
         /// <param name="matrix">Origin matrix</param>
         /// <returns>Empty matrix</returns>
         static member cloneO matrix =
-            let dim = Matrix.sizes matrix
-            let colCount: int = snd dim
-            let rowCount: int = fst dim
-
-            Matrix.O rowCount colCount
+            let (rows, cols) = Matrix.sizes matrix
+            Matrix.O rows cols
 
         /// <summary>Create empty matrix</summary>
         /// <param name="rows">Count of rows</param>
@@ -80,10 +77,8 @@ type Matrix = { values: int[,] }
         /// <returns>Square matrix</returns>
         static member toSquare matrix =
 
-            let dim = Matrix.sizes matrix
-            let colCount: int = snd dim
-            let rowCount: int = fst dim
-            let length = System.Math.Min (colCount, rowCount)
+            let (rows, cols) = Matrix.sizes matrix
+            let length = System.Math.Min (rows, cols)
 
             let zero = Array2D.zeroCreate length length
             let square = zero |> Array2D.mapi (fun x y _ -> matrix.values.[x, y])
@@ -93,9 +88,7 @@ type Matrix = { values: int[,] }
         /// <param name="matrix">Origin matrix</param>
         /// <returns>Transpose matrix</returns>
         static member transpose matrix =
-            let dim = Matrix.sizes matrix
-            let rows = fst dim
-            let cols = snd dim
+            let (rows, cols) = Matrix.sizes matrix
 
             let tMatrix = Matrix.O cols rows
             matrix.values |> Array2D.iteri(fun x y v -> tMatrix.values.[y, x] <- v)
@@ -106,11 +99,9 @@ type Matrix = { values: int[,] }
         /// <param name="matrix">Origin matrix</param>
         /// <returns>Matrix</returns>
         static member transposeO matrix =
-            let dim = Matrix.sizes matrix
-            let rows = fst dim
-            let cols = snd dim
-
+            let (rows, cols) = Matrix.sizes matrix
             let tMatrix = Matrix.O cols rows
+
             tMatrix
 
         /// <summary>Get size of matrix</summary>
@@ -169,11 +160,9 @@ type Matrix = { values: int[,] }
         /// <param name="value">Value</param>
         /// <returns>Matrix</returns>
         static member (+) (matrix, (value: int)) =
-            let dim = Matrix.sizes matrix
-            let r = fst dim
-            let c = snd dim
+            let (rows, cols) = Matrix.sizes matrix
+            let unit = Matrix.E rows cols
 
-            let unit = Matrix.E r c
             value*unit + matrix
 
         /// <summary>Subtract the mitrices</summary>
@@ -237,11 +226,9 @@ type Matrix = { values: int[,] }
                         recPow nextAcc (x-1)
                     | _ -> acc
 
-                let dim = Matrix.sizes matrix
-                let colCount = snd dim
-                let rowCount = fst dim
+                let (rows, cols) = Matrix.sizes matrix
+                let u = Matrix.E rows cols
 
-                let u = Matrix.E rowCount colCount
                 recPow u p
 
             let powMatrix = inRecPow matrix value
@@ -252,11 +239,9 @@ type Matrix = { values: int[,] }
         /// <returns>Matrix</returns>
         static member rotate90 matrix =
 
-            let dim = Matrix.sizes matrix
-            let rows = fst dim
-            let cols = snd dim
-
+            let (rows, cols) = Matrix.sizes matrix
             let transpose = Matrix.transposeO matrix
+
             for r in [0..rows-1] do
                 let row = matrix.values.[r,*]
                 transpose.values.[*,cols-r] <- row
@@ -268,11 +253,9 @@ type Matrix = { values: int[,] }
         /// <returns>Matrix</returns>
         static member rotate270 matrix =
 
-            let dim = Matrix.sizes matrix
-            let rows = fst dim
-            let cols = snd dim
-
+            let (rows, cols) = Matrix.sizes matrix
             let transpose = Matrix.transposeO matrix
+
             for r in [0..rows-1] do
                 let row = Array.rev matrix.values.[r,*]
                 transpose.values.[*,r] <- row
@@ -283,10 +266,9 @@ type Matrix = { values: int[,] }
         /// <param name="matrix">Matrix</param>
         /// <returns>Matrix</returns>
         static member rotate180 matrix =
-            let dim = Matrix.sizes matrix
-            let cols = snd dim
-
+            let (_, cols) = Matrix.sizes matrix
             let rMatrix = Matrix.cloneO matrix
+
             for r in [0..cols-1] do
                 let col = Array.rev matrix.values.[*,r]
                 rMatrix.values.[*,r] <- col
@@ -299,8 +281,8 @@ type Matrix = { values: int[,] }
         /// <param name="matrix">Matrix</param>
         /// <returns>Determinant value</returns>
         static member determinant2x matrix =
-            let dim = Matrix.sizes matrix
-            if (fst dim) = 2 && (snd dim) = 2 then
+            let (rows, cols) = Matrix.sizes matrix
+            if rows = 2 && cols = 2 then
                 let values = matrix.values
                 values.[0,0]*values.[1,1]-values.[0,1]*values.[1,0]
             else failwith "Matrix is not 2x"
@@ -311,8 +293,8 @@ type Matrix = { values: int[,] }
         /// <param name="matrix">Matrix</param>
         /// <returns>Determinant value</returns>
         static member determinant3x matrix =
-            let dim = Matrix.sizes matrix
-            if (fst dim) = 3 && (snd dim) = 3 then
+            let (rows, cols) = Matrix.sizes matrix
+            if rows = 3 && cols = 3 then
                 let values = matrix.values
                 values.[0,0]*values.[1,1]*values.[2,2]+
                 values.[2,0]*values.[0,1]*values.[1,2]+
@@ -328,9 +310,7 @@ type Matrix = { values: int[,] }
         /// <param name="matrix">Matrix</param>
         /// <returns>Determinant value</returns>
         static member determinant matrix = 
-            let dim = Matrix.sizes matrix
-            let rows = fst dim
-            let cols = snd dim
+            let (rows, cols) = Matrix.sizes matrix
 
             if rows <> cols then failwith "the matrix should be square"
             else
