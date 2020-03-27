@@ -28,8 +28,8 @@ type Matrix = { values: int[,] }
         /// <param name="matrix">Origin matrix</param>
         /// <returns>Matrix</returns>
         static member clone matrix =
-            let cValues = Array2D.copy matrix.values
-            { values = cValues }
+            let values = Array2D.copy matrix.values
+            { values = values }
 
         /// <summary>Clone empty matrix from another matrix</summary>
         /// <param name="matrix">Origin matrix</param>
@@ -43,16 +43,16 @@ type Matrix = { values: int[,] }
         /// <param name="cols">Count of columns</param>
         /// <returns>Matrix</returns>
         static member O rows cols =
-            let array2d = Array2D.zeroCreate rows cols
-            { values = array2d }
+            let values = Array2D.zeroCreate rows cols
+            { values = values }
 
         /// <summary>Create unit matrix (main diagonal filled with 1)</summary>
         /// <param name="rows">Count of rows</param>
         /// <param name="cols">Count of columns</param>
         /// <returns>Unit matrix</returns>
         static member E rows cols =
-            let array2d = Array2D.init rows cols (fun x y -> if x = y then 1 else 0)
-            { values = array2d }
+            let values = Array2D.init rows cols (fun x y -> if x = y then 1 else 0)
+            { values = values }
 
         /// <summary>
         /// Create triangular matrix (cells under main diagonal filled with 0) from another matrix
@@ -69,8 +69,8 @@ type Matrix = { values: int[,] }
         /// <param name="matrix">Origin matrix</param>
         /// <returns>Diagonal matrix</returns>
         static member D matrix =
-            let diagonal = matrix.values |> Array2D.mapi (fun x y v -> if x <> y then 0 else v)
-            { values = diagonal }
+            let values = matrix.values |> Array2D.mapi (fun x y v -> if x <> y then 0 else v)
+            { values = values }
 
         /// <summary>Cut square matrix from another matrix</summary>
         /// <param name="matrix">Origin matrix</param>
@@ -78,11 +78,12 @@ type Matrix = { values: int[,] }
         static member toSquare matrix =
 
             let (rows, cols) = Matrix.sizes matrix
-            let length = System.Math.Min (rows, cols)
 
+            let length = System.Math.Min (rows, cols)
             let zero = Array2D.zeroCreate length length
-            let square = zero |> Array2D.mapi (fun x y _ -> matrix.values.[x, y])
-            { values = square }
+
+            let values = zero |> Array2D.mapi (fun x y _ -> matrix.values.[x, y])
+            { values = values }
 
         /// <summary>Transpose the matrix</summary>
         /// <param name="matrix">Origin matrix</param>
@@ -110,6 +111,7 @@ type Matrix = { values: int[,] }
         static member sizes matrix =
             let rows = matrix.values.[*,0].Length
             let cols = matrix.values.[0,*].Length
+
             (rows, cols)
 
         /// <summary>Compare dimensions of matrices</summary>
@@ -117,7 +119,6 @@ type Matrix = { values: int[,] }
         /// <param name="matrix2">Second matrix</param>
         /// <returns>true if matrices have same sizes</returns>
         static member isEquallySized matrix1 matrix2 =
-
             let dim1 = Matrix.sizes matrix1
             let dim2 = Matrix.sizes matrix2
 
@@ -143,8 +144,8 @@ type Matrix = { values: int[,] }
         /// <exception cref="failwith">Thrown when matrix1 is not equal to matrix2</exception>
         static member (+) (matrix1, matrix2) =
             if Matrix.isEquallySized matrix1 matrix2 then
-                let array2d = matrix1.values |> Array2D.mapi (fun x y v -> matrix2.values.[x, y] + v)
-                { values = array2d }
+                let values = matrix1.values |> Array2D.mapi (fun x y v -> matrix2.values.[x, y] + v)
+                { values = values }
             else failwith "matrix1 is not equal to matrix2"
 
         /// <summary>Multiply value and matrix</summary>
@@ -152,8 +153,8 @@ type Matrix = { values: int[,] }
         /// <param name="matrix">Matrix</param>
         /// <returns>Matrix</returns>
         static member (*) (value, matrix) = 
-            let array2d = matrix.values |> Array2D.mapi (fun _ _ v -> v * value)
-            { values = array2d }
+            let values = matrix.values |> Array2D.mapi (fun _ _ v -> v * value)
+            { values = values }
 
         /// <summary>Sum matrix and value</summary>
         /// <param name="matrix">Matrix</param>
@@ -163,7 +164,7 @@ type Matrix = { values: int[,] }
             let (rows, cols) = Matrix.sizes matrix
             let unit = Matrix.E rows cols
 
-            value*unit + matrix
+            value * unit + matrix
 
         /// <summary>Subtract the mitrices</summary>
         /// <param name="matrix1">First matrix</param>
@@ -172,7 +173,7 @@ type Matrix = { values: int[,] }
         /// <exception cref="failwith">Thrown when matrix1 is not equal to matrix2</exception>
         static member (-) (matrix1: Matrix, matrix2: Matrix) = 
             if Matrix.isEquallySized matrix1 matrix2 then
-                matrix1 + (-1)*matrix2
+                matrix1 + (-1) * matrix2
             else failwith "matrix1 is not equal to matrix2"
 
         /// <summary>
@@ -182,10 +183,10 @@ type Matrix = { values: int[,] }
         /// <param name="matrix2">Second matrix</param>
         /// <returns>true if matrix1 matches the matrix2</returns>
         static member isMatched matrix1 matrix2 = 
-            let row1Count = matrix1.values.[0,*].Length
-            let col2Count = matrix2.values.[*,0].Length
+            let row1 = matrix1.values.[0,*].Length
+            let col2 = matrix2.values.[*,0].Length
 
-            row1Count = col2Count
+            row1 = col2
 
         /// <summary>Matrix multiplication</summary>
         /// <param name="matrix1">First matrix</param>
@@ -194,13 +195,13 @@ type Matrix = { values: int[,] }
         /// <exception cref="failwith">Thrown when matrix1 is not matched to matrix2</exception>
         static member (*) (matrix1, (matrix2: Matrix)) =
             if Matrix.isMatched matrix1 matrix2 then
-                let row1Count = matrix1.values.[*,0].Length
-                let col2Count = matrix2.values.[0,*].Length
+                let row1 = matrix1.values.[*,0].Length
+                let col2 = matrix2.values.[0,*].Length
 
-                let values = Array2D.zeroCreate row1Count col2Count
+                let values = Array2D.zeroCreate row1 col2
 
-                for r in 0..row1Count-1 do
-                    for c in 0..col2Count-1 do
+                for r in 0..row1-1 do
+                    for c in 0..col2-1 do
                         let row = Array.toList matrix1.values.[r,*]
                         let col = Array.toList matrix2.values.[*,c]
 
