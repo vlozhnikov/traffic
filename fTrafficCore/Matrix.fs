@@ -1,5 +1,6 @@
 ﻿namespace fTrafficCore
 
+[<Struct>]
 type Matrix = { values: int[,] }
     with
 
