@@ -1,5 +1,7 @@
 module TrafficCoreTests
 
+open fTrafficCore.Algorithms
+
 open NUnit.Framework
 open fTrafficCore
 
@@ -341,3 +343,16 @@ let MatrixTest3() =
     printfn "//--------------------"
     printfn "transppose =\n %A" A5.values
     printfn "det = %d" det5
+
+[<Test>]
+let MatrixTest4() =
+    let a = array2D [[01;02;03;04;05]
+                     [06;07;08;09;10]
+                     [11;12;13;14;15]
+                     [16;17;18;19;20]
+                     [21;22;23;24;25]
+                     [26;27;28;29;30]]
+    let A = Matrix.ofArray2D a
+    let R = subMatrix 0 3 2 4 A
+    printfn "origin \n=%A" A
+    printfn "sub \n=%A" R
