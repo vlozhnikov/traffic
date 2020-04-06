@@ -346,13 +346,35 @@ let MatrixTest3() =
 
 [<Test>]
 let MatrixTest4() =
-    let a = array2D [[01;02;03;04;05]
-                     [06;07;08;09;10]
-                     [11;12;13;14;15]
-                     [16;17;18;19;20]
-                     [21;22;23;24;25]
-                     [26;27;28;29;30]]
-    let A = Matrix.ofArray2D a
-    let R = subMatrix 0 3 2 4 A
-    printfn "origin \n=%A" A
-    printfn "sub \n=%A" R
+    let a1 = array2D [[01;02;03;04;05]
+                      [06;07;08;09;10]
+                      [11;12;13;14;15]
+                      [16;17;18;19;20]
+                      [21;22;23;24;25]
+                      [26;27;28;29;30]]
+    let A1 = Matrix.ofArray2D a1
+    let R1 = Matrix.subMatrix 0 3 2 4 A1
+
+    printfn "//--------------------"
+    printfn "origin \n=%A" A1.values
+    printfn "sub \n=%A" R1.values
+
+     //--------------------
+
+    printfn "//--------------------"
+    let a2 = array2D [[1;1;0;1;1;1;0;1]
+                      [1;1;0;1;0;1;0;1]
+                      [1;1;1;1;0;0;0;1]
+                      [0;0;0;0;0;0;0;1]
+                      [1;1;1;1;0;1;0;1]
+                      [0;0;0;1;0;1;0;1]
+                      [1;1;0;1;0;0;0;1]
+                      [1;1;0;1;0;1;1;1]]
+    let A2 = Matrix.ofArray2D a2
+    let R2 = Algorithms.markingOfConnectedComponents A2
+    printfn "origin \n=%A" A2.values
+    printfn "markers \n=%A" R2.values
+
+    //--------------------
+    
+    printfn "//--------------------"

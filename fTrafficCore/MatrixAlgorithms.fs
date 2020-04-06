@@ -2,8 +2,19 @@
 
 module Algorithms =
     
-    let subMatrix row col width height matrix =
-        let (rows, cols) = Matrix.sizes matrix
-        if rows < (row + height) || cols < (col + width) then failwith "submatrix is out of range"
-        let values = matrix.values.[row..(row+height-1), col..(col+width-1)]
-        {values = values}
+    let markingOfConnectedComponents matrix =
+        // up to 100 markers
+        let parents = Array2D.init 100 2 (fun c r -> [if r = 0 then c+1 else 0])
+        
+        let rec find x (parents: int[,]) = 
+            let index = Array.findIndex ((=)x) parents.[1,*]
+            match parents.[0, index] with
+            | p when p <> 0 -> find p parents
+            | _ -> x
+
+        let union x y parents =
+            let j = find x parents
+            let k = find y parents
+            if j <> k then parents.[1,k] <- j
+
+        Matrix.O 1 1
