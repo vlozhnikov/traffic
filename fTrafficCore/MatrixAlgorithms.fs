@@ -4,16 +4,16 @@ module Algorithms =
     
     let markingOfConnectedComponents matrix =
         // up to 100 markers
-        let parents = Array2D.create 100 2 0
+        let parents = Array2D.create 10 2 0
 
         let rec find x =
-            let index = Array.tryFindIndex ((=)x) parents.[*,1]
+            let index = Array.tryFindIndex ((=)x) parents.[1,*]
             match index with
             | Some(i) -> 
-                match parents.[0, i] with
+                match parents.[i,0] with
                 | p when p <> 0 -> find p
                 | _ -> x
-            | None -> 0
+            | None -> x
 
         let union x y =
             let j = find x
@@ -43,6 +43,7 @@ module Algorithms =
                                         else 0)
 
         printfn "%A" step1
+        printfn "%A" parents
 
         let step2 = matrix.values
                     |> Array2D.mapi (fun x y v ->
