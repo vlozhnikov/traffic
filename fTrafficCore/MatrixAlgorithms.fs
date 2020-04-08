@@ -5,12 +5,14 @@ module Algorithms =
     let markingOfConnectedComponents matrix =
         // up to 100 markers
         let parents = Array2D.create 10 2 0
+        //let parents = array2D [[1;2;3;4;5;6;7;8]
+        //                       [2;3;0;3;7;7;0;3]]
 
         let rec find x =
-            let index = Array.tryFindIndex ((=)x) parents.[1,*]
+            let index = Array.tryFindIndex ((=)x) parents.[0, *]
             match index with
             | Some(i) -> 
-                match parents.[i,0] with
+                match parents.[1, i] with
                 | p when p <> 0 -> find p
                 | _ -> x
             | None -> x
@@ -18,15 +20,27 @@ module Algorithms =
         let union x y =
             let j = find x
             let k = find y
-            if j <> k then parents.[k,1] <- j
+            if j <> k then parents.[1, k] <- j
 
         // returns up and left neighbors of pixel
         let neighbors_labels x y =
             match (x, y) with
             | (0, 0) -> []
-            | (0, _) -> [matrix.values.[0, y-1]]
-            | (_, 0) -> [matrix.values.[x-1, 0]]
-            | _ -> [matrix.values.[x-1, y]; matrix.values.[x, y-1]]
+            | (0, _) ->
+                let v = matrix.values.[0, y-1]
+                if v = 0 then [parents.[v, 0]]
+                else []
+            | (_, 0) ->
+                let v = matrix.values.[x-1, 0]
+                if v <> 0 then [parents.[v, 0]] else []
+            | _ ->
+                let v1 = matrix.values.[x, y-1]
+                let v2 = matrix.values.[x-1, y]
+
+                if v1 = 0 && v2 = 0 then []
+                elif v1 <> 0 && v2 <> 0 then [parents.[v1, 0]; parents.[v2, 0]]
+                elif v1 <> 0 then [parents.[v1, 0]]
+                else [parents.[v2, 0]]
 
         let mutable label = 0
         let step1 = matrix.values
@@ -35,6 +49,7 @@ module Algorithms =
                                             let n = neighbors_labels x y
                                             let m = if n.IsEmpty then
                                                         label <- label + 1
+                                                        parents.[0,0] <- label
                                                         label
                                                     else
                                                         n |> List.min
