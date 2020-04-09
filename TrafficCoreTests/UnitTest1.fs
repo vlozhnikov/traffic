@@ -356,8 +356,8 @@ let MatrixTest4() =
     let R1 = Matrix.subMatrix 0 3 2 4 A1
 
     printfn "//--------------------"
-    printfn "origin \n=%A" A1.values
-    printfn "sub \n=%A" R1.values
+    printfn "origin =\n %A" A1.values
+    printfn "sub =\n %A" R1.values
 
      //--------------------
 
@@ -371,10 +371,43 @@ let MatrixTest4() =
                       [1;1;0;1;0;0;0;1]
                       [1;1;0;1;0;1;1;1]]
     let A2 = Matrix.ofArray2D a2
+
+    let t1 = System.Diagnostics.Stopwatch.StartNew()
     let R2 = Algorithms.markingOfConnectedComponents A2
-    printfn "origin \n=%A" A2.values
-    printfn "markers \n=%A" R2.values
+    t1.Stop()
 
     //--------------------
-    
+
     printfn "//--------------------"
+
+    let t2 = System.Diagnostics.Stopwatch.StartNew()
+    let R3 = Algorithms.recMarkingOfConnectedComponents A2
+    t2.Stop()
+
+    printfn "origin =\n %A" A2.values
+    printfn "markers =\n %A" R2.values
+    printfn "rec markers =\n %A" R3.values
+
+    printfn "elapsed lines = %O" t1.Elapsed
+    printfn "elapsed recurcive = %O" t2.Elapsed
+
+    //--------------------
+
+    printfn "//--------------------"
+
+    let a3 = Array2D.create 100 100 1
+    let A3 = Matrix.ofArray2D a3
+
+    let t3 = System.Diagnostics.Stopwatch.StartNew()
+    let R3 = Algorithms.markingOfConnectedComponents A3
+    t3.Stop()
+    printfn "elapsed lines = %O" t3.Elapsed
+
+    let t4 = System.Diagnostics.Stopwatch.StartNew()
+    let R4 = Algorithms.recMarkingOfConnectedComponents A3
+    t4.Stop()
+    printfn "elapsed recurcive = %O" t4.Elapsed
+
+    //printfn "origin =\n %A" A3.values
+    //printfn "markers =\n %A" R3.values
+    //printfn "rec markers =\n %A" R3.values
