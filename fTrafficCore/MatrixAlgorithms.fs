@@ -62,7 +62,9 @@ module Algorithms =
         let copy = Matrix.clone matrix
 
         let (|Value|Zero|Out|) (x, y) = 
-            if x < 0 || y < 0 || x > (copy.values.[0, *].Length - 1) || y > (copy.values.[*, 0].Length - 1) then
+            if x < 0 || y < 0
+                || x > (copy.values.[0, *].Length - 1)
+                || y > (copy.values.[*, 0].Length - 1) then
                 Out
             else
                 let row = copy.values.[y, *]
@@ -83,7 +85,8 @@ module Algorithms =
 
         let mutable value = 2
         copy.values
-        |> Array2D.iteri (fun y x e -> if e = 1 then markBits x y value
-                                       value <- value + 1)
+        |> Array2D.iteri (fun y x v -> if v = 1 then
+                                            markBits x y value
+                                            value <- value + 1)
 
         copy
