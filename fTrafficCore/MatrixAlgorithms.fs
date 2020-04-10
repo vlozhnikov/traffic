@@ -62,20 +62,20 @@ module Algorithms =
         let copy = Matrix.clone matrix
 
         let (|Value|Zero|Out|) (x, y) = 
-            if x < 0 || y < 0
-                || x > (copy.values.[0, *].Length - 1)
-                || y > (copy.values.[*, 0].Length - 1) then
-                Out
-            else
-                let row = copy.values.[y, *]
-                match row.[x] with
-                    | 0 -> Zero
-                    | v -> Value(v)
+                    if x < 0 || y < 0
+                        || x > (copy.values.[0, *].Length - 1)
+                        || y > (copy.values.[*, 0].Length - 1) then
+                        Out
+                    else
+                        let row = copy.values.[y, *]
+                        match row.[x] with
+                            | 0 -> Zero
+                            | v -> Value(v)
 
         let rec markBits x y value =
             match (x, y) with
             | Value(v) ->
-                if v <> value then
+                if value > v then
                     copy.values.[y, x] <- value
                     markBits (x + 1) y value
                     markBits (x - 1) y value
