@@ -90,3 +90,24 @@ module Algorithms =
                                             value <- value + 1)
 
         copy
+
+    let upbuilding array2d mask (cx, cy) =
+        let sub mask (cx, cy) =
+            
+            let (rows, cols) = Matrix.sizes {values = mask}
+
+            let dx = if (cx - cols/2) < 0 then 0 else (cx - cols/2)
+            let dy = if (cy - rows/2) < 0 then 0 else (cy - rows/2)
+            let deltaX = if (dx+cols-1) > cols then (cols - dx) else (dx+cols-1)
+            let deltaY = if (dy+rows-1) > rows then (rows - dy) else (dy+rows-1)
+
+            let values = mask.[dx..deltaX, dy..deltaY]
+            values
+
+        let copy = Matrix.clone {values = mask}
+        copy.values
+        |> Array2D.iteri (fun x y v ->
+                           if v = 1 then
+                               let sub = sub mask (x, y)
+                               ())
+        copy
