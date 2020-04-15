@@ -92,6 +92,22 @@ module Algorithms =
         copy
 
     /// <summary>
+    /// Operator >.
+    /// </summary>
+    /// <param name="value">value</param>
+    /// <param name="checkValue">check value</param>
+    /// <returns>Value or checkvalue</returns>
+    let (>.) value checkValue = if value > checkValue then checkValue else value
+
+    /// <summary>
+    /// Operator <.
+    /// </summary>
+    /// <param name="value">value</param>
+    /// <param name="checkValue">check value</param>
+    /// <returns>Value or checkvalue</returns>
+    let (<.) value checkValue = if value < checkValue then checkValue else value
+
+    /// <summary>
     /// Returns x1, x2, y1, y2 submatrix coordinates according with mask
     /// </summary>
     /// <param name="source">original array2d</param>
@@ -107,9 +123,6 @@ module Algorithms =
         let y1 = centerY - maskCenterY
         let x2 = x1 + maskCols - 1
         let y2 = y1 + maskRows - 1
-
-        let (>.) value checkValue = if value > checkValue then checkValue else value
-        let (<.) value checkValue = if value < checkValue then checkValue else value
 
         (x1 <. 0, x2 >. (cols - 1), y1 <. 0, y2 >. (rows - 1))
 
