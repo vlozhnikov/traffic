@@ -91,23 +91,87 @@ module Algorithms =
 
         copy
 
-    let upbuilding array2d mask (cx, cy) =
-        let sub mask (cx, cy) =
+    /// <summary>
+    /// Returns x1, x2, y1, y2 submatrix coordinates according with mask
+    /// </summary>
+    /// <param name="source">original array2d</param>
+    /// <param name="mask">mask</param>
+    /// <param name="(x, y)">array2d current coordinate</param>
+    /// <param name="(maskCenterX, maskCenterY)">mask center coordinate</param>
+    /// <returns>Subarray</returns>
+    let subArrayOfMaks source (x, y) (maskCenterX, maskCenterY) = 
+        let (rows, cols) = Matrix.sizes {values = source}
+
+        let x1 = if (x - maskCenterX) < 0 then 0 else (x - maskCenterX)
+        let y1 = if (y - maskCenterY) < 0 then 0 else (y - maskCenterY)
+        let x2 = if (x + maskCenterX) >= cols then (cols - 1) else (x + maskCenterX)
+        let y2 = if (y + maskCenterY) >= rows then (rows - 1) else (y + maskCenterY)
+
+        (x1, x2, y1, y2)
+
+    /// <summary>
+    /// Upbuilding original array2d algorithm
+    /// </summary>
+    /// <param name="array2d">original array2d</param>
+    /// <param name="mask">mask</param>
+    /// <param name="(maskCenterX, maskCenterY)">mask center coordinate</param>
+    /// <returns>New array2d</returns>
+    let upbuilding array2d mask (centerX, centerY) =
+
+        let sub source mask (x, y) (maskCenterX, maskCenterY) =
+            let (x1, x2, y1, y2) = subArrayOfMaks source (x, y) (maskCenterX, maskCenterY)
+            source.[x1..x2, y1..y2] <- mask
             
-            let (rows, cols) = Matrix.sizes {values = mask}
 
-            let dx = if (cx - cols/2) < 0 then 0 else (cx - cols/2)
-            let dy = if (cy - rows/2) < 0 then 0 else (cy - rows/2)
-            let deltaX = if (dx+cols-1) > cols then (cols - dx) else (dx+cols-1)
-            let deltaY = if (dy+rows-1) > rows then (rows - dy) else (dy+rows-1)
+        let copy = (Matrix.cloneO {values = array2d}).values
+        array2d |> Array2D.iteri (fun x y v -> if v = 1 then sub copy mask (x, y) (centerX, centerY))
 
-            let values = mask.[dx..deltaX, dy..deltaY]
-            values
-
-        let copy = Matrix.clone {values = mask}
-        copy.values
-        |> Array2D.iteri (fun x y v ->
-                           if v = 1 then
-                               let sub = sub mask (x, y)
-                               ())
         copy
+
+    /// <summary>
+    /// Erosion original array2d algorithm
+    /// </summary>
+    /// <param name="array2d">original array2d</param>
+    /// <param name="mask">mask</param>
+    /// <param name="(maskCenterX, maskCenterY)">mask center coordinate</param>
+    /// <returns>New array2d</returns>
+    let erosion array2d mask (centerX, centerY) =
+
+        let sub source (copy: int [,]) mask (x, y) (maskCenterX, maskCenterY) =
+
+            let (x1, x2, y1, y2) = subArrayOfMaks source (x, y) (maskCenterX, maskCenterY)
+            let subArray2d = source.[x1..x2, y1..y2]
+
+            if (Matrix.ofArray2D subArray2d) == (Matrix.ofArray2D mask) then
+                copy.[x, y] <- 1
+
+        let copy = (Matrix.cloneO {values = array2d}).values
+        array2d |> Array2D.iteri (fun x y v -> if v = 1 then sub array2d copy mask (x, y) (centerX, centerY))
+
+        copy
+
+    /// <summary>
+    /// Closure original array2d algorithm
+    /// </summary>
+    /// <param name="array2d">original array2d</param>
+    /// <param name="mask">mask</param>
+    /// <param name="(maskCenterX, maskCenterY)">mask center coordinate</param>
+    /// <returns>New array2d</returns>
+    let closure array2d mask (centerX, centerY) = 
+        let step1 = upbuilding array2d mask (centerX, centerY)
+        let step2 = erosion step1 mask (centerX, centerY)
+
+        step2
+
+    /// <summary>
+    /// Orening original array2d algorithm
+    /// </summary>
+    /// <param name="array2d">original array2d</param>
+    /// <param name="mask">mask</param>
+    /// <param name="(maskCenterX, maskCenterY)">mask center coordinate</param>
+    /// <returns>New array2d</returns>
+    let opening array2d mask (centerX, centerY) = 
+        let step1 = erosion array2d mask (centerX, centerY)
+        let step2 = upbuilding step1 mask (centerX, centerY)
+
+        step2

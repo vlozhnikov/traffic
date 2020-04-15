@@ -348,6 +348,15 @@ type Matrix = { values: int[,] }
                 let det = recDet matrix
                 det
 
+        /// <summary>
+        /// Returns submatrix
+        /// </summary>
+        /// <param name="row">y - coordinat</param>
+        /// <param name="col">x - coordinat</param>
+        /// <param name="width">subarray width</param>
+        /// <param name="height">subarray height</param>
+        /// <param name="matrix">source matrix</param>
+        /// <returns>Subarray</returns>
         static member subMatrix row col width height matrix =
             let (rows, cols) = Matrix.sizes matrix
             if rows < (row + height) || cols < (col + width) then failwith "submatrix is out of range"

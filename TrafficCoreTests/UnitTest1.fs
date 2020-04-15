@@ -411,3 +411,31 @@ let MatrixTest4() =
     //printfn "origin =\n %A" A3.values
     //printfn "markers =\n %A" R3.values
     //printfn "rec markers =\n %A" R3.values
+
+
+[<Test>]
+let MatrixTest5() =
+    let a1 = array2D [[0;0;0;0;0;0;0;0]
+                      [1;1;1;1;1;1;1;0]
+                      [0;0;0;1;1;1;1;0]
+                      [0;0;0;1;1;1;1;0]
+                      [0;0;1;1;1;1;1;0]
+                      [0;0;0;1;1;1;1;0]
+                      [0;0;1;1;0;0;0;0]
+                      [0;0;0;0;0;0;0;0]]
+    let m1 = array2D [[1;1;1]
+                      [1;1;1]
+                      [1;1;1]]
+    let r1 = Algorithms.upbuilding a1 m1 (1, 1)
+    let r2 = Algorithms.erosion a1 m1 (1, 1)
+    let r3 = Algorithms.closure a1 m1 (1, 1)
+    let r4 = Algorithms.opening a1 m1 (1, 1)
+
+    printfn "//--------------------"
+    printfn "mask = \n %A" m1
+    printfn "origin =\n %A" a1
+    printfn "upbuilding =\n %A" r1
+    printfn "erosion =\n %A" r2
+    printfn "closure =\n %A" r3
+    printfn "opening =\n %A" r4
+    ()

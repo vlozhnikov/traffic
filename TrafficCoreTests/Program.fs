@@ -3,5 +3,5 @@ open TrafficCoreTests
 module Program =
     [<EntryPoint>]
     let main _ =
-        MatrixTest4()
+        MatrixTest5()
         0
