@@ -99,15 +99,19 @@ module Algorithms =
     /// <param name="(x, y)">array2d current coordinate</param>
     /// <param name="(maskCenterX, maskCenterY)">mask center coordinate</param>
     /// <returns>Subarray</returns>
-    let subArrayOfMaks source (x, y) (maskCenterX, maskCenterY) = 
-        let (rows, cols) = Matrix.sizes {values = source}
+    let subArrayOfMaks array2d mask (centerX, centerY) (maskCenterX, maskCenterY) = 
+        let (rows, cols) = Matrix.sizes {values = array2d}
+        let (maskRows, maskCols) = Matrix.sizes {values = mask}
 
-        let x1 = if (x - maskCenterX) < 0 then 0 else (x - maskCenterX)
-        let y1 = if (y - maskCenterY) < 0 then 0 else (y - maskCenterY)
-        let x2 = if (x + maskCenterX) >= cols then (cols - 1) else (x + maskCenterX)
-        let y2 = if (y + maskCenterY) >= rows then (rows - 1) else (y + maskCenterY)
+        let x1 = centerX - maskCenterX
+        let y1 = centerY - maskCenterY
+        let x2 = x1 + maskCols - 1
+        let y2 = y1 + maskRows - 1
 
-        (x1, x2, y1, y2)
+        let (>.) value checkValue = if value > checkValue then checkValue else value
+        let (<.) value checkValue = if value < checkValue then checkValue else value
+
+        (x1 <. 0, x2 >. (cols - 1), y1 <. 0, y2 >. (rows - 1))
 
     /// <summary>
     /// Upbuilding original array2d algorithm
@@ -119,10 +123,9 @@ module Algorithms =
     let upbuilding array2d mask (centerX, centerY) =
 
         let sub source mask (x, y) (maskCenterX, maskCenterY) =
-            let (x1, x2, y1, y2) = subArrayOfMaks source (x, y) (maskCenterX, maskCenterY)
+            let (x1, x2, y1, y2) = subArrayOfMaks source mask (x, y) (maskCenterX, maskCenterY)
             source.[x1..x2, y1..y2] <- mask
             
-
         let copy = (Matrix.cloneO {values = array2d}).values
         array2d |> Array2D.iteri (fun x y v -> if v = 1 then sub copy mask (x, y) (centerX, centerY))
 
@@ -138,8 +141,7 @@ module Algorithms =
     let erosion array2d mask (centerX, centerY) =
 
         let sub source (copy: int [,]) mask (x, y) (maskCenterX, maskCenterY) =
-
-            let (x1, x2, y1, y2) = subArrayOfMaks source (x, y) (maskCenterX, maskCenterY)
+            let (x1, x2, y1, y2) = subArrayOfMaks source mask (x, y) (maskCenterX, maskCenterY)
             let subArray2d = source.[x1..x2, y1..y2]
 
             if (Matrix.ofArray2D subArray2d) == (Matrix.ofArray2D mask) then
