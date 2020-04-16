@@ -107,6 +107,16 @@ module Algorithms =
     /// <returns>Value or checkvalue</returns>
     let (<.) value checkValue = if value < checkValue then checkValue else value
 
+    let contains array2d mask =
+        if Matrix.isEquallySized (Matrix.ofArray2D array2d) (Matrix.ofArray2D mask) then
+            not (array2d
+                 |> Array2D.mapi (fun x y v -> if mask.[x, y ] = 0 then 1
+                                               elif mask.[x, y] = v then 1
+                                               else 0)
+                 |> Seq.cast<int>
+                 |> Seq.contains 0)
+        else false
+
     /// <summary>
     /// Returns x1, x2, y1, y2 submatrix coordinates according with mask
     /// </summary>
@@ -133,14 +143,14 @@ module Algorithms =
     /// <param name="mask">mask</param>
     /// <param name="(maskCenterX, maskCenterY)">mask center coordinate</param>
     /// <returns>New array2d</returns>
-    let upbuilding array2d mask (centerX, centerY) =
+    let upbuilding array2d mask (maskCenterX, maskCenterY) =
 
         let sub source mask (x, y) (maskCenterX, maskCenterY) =
             let (x1, x2, y1, y2) = subArrayOfMaks source mask (x, y) (maskCenterX, maskCenterY)
             source.[x1..x2, y1..y2] <- mask
             
         let copy = (Matrix.cloneO {values = array2d}).values
-        array2d |> Array2D.iteri (fun x y v -> if v = 1 then sub copy mask (x, y) (centerX, centerY))
+        array2d |> Array2D.iteri (fun x y v -> if v = 1 then sub copy mask (x, y) (maskCenterX, maskCenterY))
 
         copy
 
@@ -151,17 +161,17 @@ module Algorithms =
     /// <param name="mask">mask</param>
     /// <param name="(maskCenterX, maskCenterY)">mask center coordinate</param>
     /// <returns>New array2d</returns>
-    let erosion array2d mask (centerX, centerY) =
+    let erosion array2d mask (maskCenterX, maskCenterY) =
 
         let sub source (copy: int [,]) mask (x, y) (maskCenterX, maskCenterY) =
             let (x1, x2, y1, y2) = subArrayOfMaks source mask (x, y) (maskCenterX, maskCenterY)
             let subArray2d = source.[x1..x2, y1..y2]
 
-            if (Matrix.ofArray2D subArray2d) == (Matrix.ofArray2D mask) then
+            if contains subArray2d mask then
                 copy.[x, y] <- 1
 
         let copy = (Matrix.cloneO {values = array2d}).values
-        array2d |> Array2D.iteri (fun x y v -> if v = 1 then sub array2d copy mask (x, y) (centerX, centerY))
+        array2d |> Array2D.iteri (fun x y v -> if v = 1 then sub array2d copy mask (x, y) (maskCenterX, maskCenterY))
 
         copy
 
@@ -190,3 +200,66 @@ module Algorithms =
         let step2 = upbuilding step1 mask (centerX, centerY)
 
         step2
+
+    //https://habr.com/ru/post/113626/
+
+    /// <summary>
+    /// Inverse original array2d algorithm
+    /// </summary>
+    /// <param name="array2d">original array2d</param>
+    /// <returns>Enversed array2d</returns>
+    let inverse array2d =
+        array2d |> Array2D.mapi (fun _ _ v -> v ^^^ 1)
+
+    /// <summary>
+    /// Union two arrays2d algorithm
+    /// </summary>
+    /// <param name="array2d1">array2d</param>
+    /// <param name="array2d2">array2d</param>
+    /// <returns>Union</returns>
+    let union array2d1 array2d2 = 
+        if Matrix.isEquallySized (Matrix.ofArray2D array2d1) (Matrix.ofArray2D array2d2) then
+            array2d1 |> Array2D.mapi (fun x y v -> v ||| array2d2.[x, y])
+        else failwith "array2d1 is not equal to array2d2"
+
+    /// <summary>
+    /// Intersection two arrays2d algorithm
+    /// </summary>
+    /// <param name="array2d1">array2d</param>
+    /// <param name="array2d2">array2d</param>
+    /// <returns>Intersection</returns>
+    let intersection array2d1 array2d2 = 
+        if Matrix.isEquallySized (Matrix.ofArray2D array2d1) (Matrix.ofArray2D array2d2) then
+            array2d1 |> Array2D.mapi (fun x y v -> v &&& array2d2.[x, y])
+        else failwith "array2d1 is not equal to array2d2"
+
+    /// <summary>
+    /// Complement algorithm
+    /// </summary>
+    /// <param name="array2d">array2d</param>
+    /// <returns>Complement</returns>
+    let complement array2d = 
+        inverse array2d
+
+    /// <summary>
+    /// Difference two arrays2d algorithm
+    /// </summary>
+    /// <param name="array2d1">array2d</param>
+    /// <param name="array2d2">array2d</param>
+    /// <returns>Difference</returns>
+    let difference array2d1 array2d2 = 
+        if Matrix.isEquallySized (Matrix.ofArray2D array2d1) (Matrix.ofArray2D array2d2) then
+            array2d1 |> Array2D.mapi (fun x y v -> if v <> array2d2.[x, y] then v else 0)
+        else failwith "array2d1 is not equal to array2d2"
+
+    /// <summary>
+    /// Border allocation algorithm
+    /// </summary>
+    /// <param name="array2d1">array2d</param>
+    /// <param name="array2d2">array2d</param>
+    /// <param name="(maskCenterX, maskCenterY)">mask center coordinate</param>
+    /// <returns>Border</returns>
+    let borderAllocation array2d mask (maskCenterX, maskCenterY) = 
+        let e = erosion array2d mask (maskCenterX, maskCenterY)
+        let border = difference array2d e
+        border

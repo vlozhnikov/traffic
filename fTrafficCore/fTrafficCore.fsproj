@@ -6,6 +6,6 @@
     <Compile Include="Utils.fs" />
     <Compile Include="Road.fs" />
     <Compile Include="Matrix.fs" />
-    <Compile Include="MatrixAlgorithms.fs" />
+    <Compile Include="BinaryAlgorithms.fs" />
   </ItemGroup>
 </Project>

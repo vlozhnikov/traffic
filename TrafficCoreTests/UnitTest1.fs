@@ -415,7 +415,7 @@ let MatrixTest4() =
 
 [<Test>]
 let MatrixTest5() =
-    let a1 = array2D [[0;0;0;0;0;0;0;0]
+    (*let a1 = array2D [[0;0;0;0;0;0;0;0]
                       [1;1;1;1;1;1;1;0]
                       [0;0;0;1;1;1;1;0]
                       [0;0;0;1;1;1;1;0]
@@ -426,16 +426,74 @@ let MatrixTest5() =
     let m1 = array2D [[1;1;1]
                       [1;1;1]
                       [1;1;1]]
-    let r1 = Algorithms.upbuilding a1 m1 (1, 1)
-    let r2 = Algorithms.erosion a1 m1 (1, 1)
-    let r3 = Algorithms.closure a1 m1 (1, 1)
-    let r4 = Algorithms.opening a1 m1 (1, 1)
+    let r11 = Algorithms.upbuilding a1 m1 (1, 1)
+    let r12 = Algorithms.erosion a1 m1 (1, 1)
+    let r13 = Algorithms.closure a1 m1 (1, 1)
+    let r14 = Algorithms.opening a1 m1 (1, 1)
 
     printfn "//--------------------"
     printfn "mask = \n %A" m1
     printfn "origin =\n %A" a1
-    printfn "upbuilding =\n %A" r1
-    printfn "erosion =\n %A" r2
-    printfn "closure =\n %A" r3
-    printfn "opening =\n %A" r4
+    printfn "upbuilding =\n %A" r11
+    printfn "erosion =\n %A" r12
+    printfn "closure =\n %A" r13
+    printfn "opening =\n %A" r14*)
+
+    //--------------------
+
+    (*printfn "//--------------------"
+    let a2 = array2D [[0;1;0]
+                      [0;1;1]
+                      [0;1;0]]
+
+    let m2 = array2D [[0;0;0]
+                      [1;1;1]
+                      [0;0;0]]
+
+    let r21 = Algorithms.union a2 m2
+    let r22 = Algorithms.intersection a2 m2
+    let r23 = Algorithms.complement a2
+    let r24 = Algorithms.difference a2 m2
+
+    printfn "union = \n %A" r21
+    printfn "intersection = \n %A" r22
+    printfn "complement = \n %A" r23
+    printfn "difference = \n %A" r24*)
+
+    //--------------------
+
+    (*printfn "//--------------------"
+    let a3 = array2D [[0;0;0;0;0;0;0;0]
+                      [0;0;0;0;0;0;0;0]
+                      [0;0;1;1;1;1;0;0]
+                      [0;1;1;1;1;1;0;0]
+                      [0;1;1;1;1;1;1;1]
+                      [0;1;1;1;1;1;1;1]
+                      [0;0;1;1;1;1;1;1]
+                      [0;0;0;0;0;0;0;0]]
+
+    let m3 = array2D [[0;1;0]
+                      [1;1;1]
+                      [0;1;0]]
+
+    let r3 = Algorithms.borderAllocation a3 m3 (1, 1)
+
+    printfn "origin = \n %A" a3
+    printfn "border = \n %A" r3*)
+
+    //--------------------
+
+    printfn "//--------------------"
+    let a4 = Array2D.create 10 10 1
+    let m4 = array2D [[0;0;1;0;0]
+                      [0;1;1;1;0]
+                      [1;1;1;1;1]
+                      [0;1;1;1;0]
+                      [0;0;1;0;0]]
+
+    let r4 = Algorithms.opening a4 m4 (2, 2)
+
+    printfn "origin = \n %A" a4
+    printfn "opening = \n %A" r4
+
     ()
