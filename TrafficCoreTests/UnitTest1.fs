@@ -396,21 +396,20 @@ let MatrixTest4() =
     printfn "//--------------------"
 
     let a3 = Array2D.create 200 200 1
-    let A3 = Matrix.ofArray2D a3
 
     let t3 = System.Diagnostics.Stopwatch.StartNew()
-    let R3 = Algorithms.markingOfConnectedComponents A3
+    let r3 = Algorithms.markingOfConnectedComponents a3
     t3.Stop()
     printfn "elapsed lines = %O" t3.Elapsed
 
     let t4 = System.Diagnostics.Stopwatch.StartNew()
-    let R4 = Algorithms.recMarkingOfConnectedComponents A3
+    let r4 = Algorithms.recMarkingOfConnectedComponents a3
     t4.Stop()
     printfn "elapsed recurcive = %O" t4.Elapsed
 
-    //printfn "origin =\n %A" A3.values
-    //printfn "markers =\n %A" R3.values
-    //printfn "rec markers =\n %A" R3.values
+    //printfn "origin =\n %A" a3
+    //printfn "markers =\n %A" r3
+    //printfn "rec markers =\n %A" r3
 
 
 [<Test>]
@@ -437,11 +436,11 @@ let MatrixTest5() =
     printfn "upbuilding =\n %A" r11
     printfn "erosion =\n %A" r12
     printfn "closure =\n %A" r13
-    printfn "opening =\n %A" r14*)
+    printfn "opening =\n %A" r14
 
     //--------------------
 
-    (*printfn "//--------------------"
+    printfn "//--------------------"
     let a2 = array2D [[0;1;0]
                       [0;1;1]
                       [0;1;0]]
@@ -458,11 +457,11 @@ let MatrixTest5() =
     printfn "union = \n %A" r21
     printfn "intersection = \n %A" r22
     printfn "complement = \n %A" r23
-    printfn "difference = \n %A" r24*)
+    printfn "difference = \n %A" r24
 
     //--------------------
 
-    (*printfn "//--------------------"
+    printfn "//--------------------"
     let a3 = array2D [[0;0;0;0;0;0;0;0]
                       [0;0;0;0;0;0;0;0]
                       [0;0;1;1;1;1;0;0]
@@ -484,16 +483,34 @@ let MatrixTest5() =
     //--------------------
 
     printfn "//--------------------"
-    let a4 = Array2D.create 10 10 1
-    let m4 = array2D [[0;0;1;0;0]
-                      [0;1;1;1;0]
-                      [1;1;1;1;1]
-                      [0;1;1;1;0]
-                      [0;0;1;0;0]]
+    let a5 = array2D [[0;0;0;0;0;0;0;0;0;0]
+                      [0;0;1;0;0;0;0;0;0;0]
+                      [0;1;1;1;0;0;0;1;0;0]
+                      [0;0;0;0;0;0;0;0;1;0]
+                      [0;0;0;0;1;0;0;0;0;0]
+                      [0;0;0;0;1;1;0;0;1;0]
+                      [0;0;0;1;1;1;1;0;1;0]
+                      [0;0;0;1;0;0;0;0;1;0]
+                      [0;0;0;0;0;0;0;1;1;0]
+                      [0;0;0;0;0;0;0;0;0;0]]
+    let m5 = array2D [[1]
+                      [1]
+                      [1]]
 
-    let r4 = Algorithms.opening a4 m4 (2, 2)
+    let r41 = Algorithms.markingOfConnectedComponents a5
+    let r42 = Algorithms.erosion a5 m5 (0, 1)
 
-    printfn "origin = \n %A" a4
-    printfn "opening = \n %A" r4
+    printfn "origin = \n %A" a5
+    printfn "marked = \n %A" r41
+    printfn "erosion =\n %A" r42
+
+    let r43 = (Matrix.cloneO {values = r41}).values
+    r42
+    |> Array2D.iteri (fun x y v -> if v = 1 then
+                                        let label = r41.[x, y]
+                                        r41 |> Array2D.iteri (fun x1 y1 v1 -> if v1 = label then r43.[x1, y1] <- 1)
+                     )
+
+    printfn "found =\n %A" r43
 
     ()

@@ -2,7 +2,7 @@
 
 module Algorithms =
 
-    let markingOfConnectedComponents matrix =
+    let markingOfConnectedComponents array2d =
 
         // up to 10 markers
         let parents = Array2D.init 2 10 (fun x y -> if x = 0 then y+1 else 0)
@@ -10,7 +10,7 @@ module Algorithms =
         //                       [2;3;0;3;7;7;0;3]]
 
         // create a zero initialized copy
-        let step1 = (Matrix.cloneO matrix).values
+        let step1 = (Matrix.cloneO (Matrix.ofArray2D array2d)).values
 
         let rec find x =
             let index = Array.tryFindIndex ((=)x) parents.[0, *]
@@ -36,7 +36,7 @@ module Algorithms =
             |> List.filter ((<>)0)
 
         let mutable label = 0
-        matrix.values
+        array2d
         |> Array2D.iteri (fun x y v ->
                             if v = 1 then
                                 let n = neighbors_labels x y
@@ -50,24 +50,24 @@ module Algorithms =
 
         //printfn "%A" parents
 
-        let step2 = matrix.values
+        let step2 = array2d
                     |> Array2D.mapi (fun x y v ->
                             if v = 1 then step1.[x, y] <- find step1.[x, y]
                             step1.[x, y])
 
-        { values = step2 }
+        step2
 
-    let recMarkingOfConnectedComponents matrix =
+    let recMarkingOfConnectedComponents array2d =
 
-        let copy = Matrix.clone matrix
+        let copy = (Matrix.cloneO (Matrix.ofArray2D array2d)).values
 
         let (|Value|Zero|Out|) (x, y) = 
                     if x < 0 || y < 0
-                        || x > (copy.values.[0, *].Length - 1)
-                        || y > (copy.values.[*, 0].Length - 1) then
+                        || x > (copy.[0, *].Length - 1)
+                        || y > (copy.[*, 0].Length - 1) then
                         Out
                     else
-                        let row = copy.values.[y, *]
+                        let row = copy.[y, *]
                         match row.[x] with
                             | 0 -> Zero
                             | v -> Value(v)
@@ -76,7 +76,7 @@ module Algorithms =
             match (x, y) with
             | Value(v) ->
                 if value > v then
-                    copy.values.[y, x] <- value
+                    copy.[y, x] <- value
                     markBits (x + 1) y value
                     markBits (x - 1) y value
                     markBits x (y + 1) value
@@ -84,7 +84,7 @@ module Algorithms =
             | Zero | Out -> ()
 
         let mutable value = 2
-        copy.values
+        copy
         |> Array2D.iteri (fun y x v -> if v = 1 then
                                             markBits x y value
                                             value <- value + 1)
@@ -147,10 +147,10 @@ module Algorithms =
 
         let sub source mask (x, y) (maskCenterX, maskCenterY) =
             let (x1, x2, y1, y2) = subArrayOfMaks source mask (x, y) (maskCenterX, maskCenterY)
-            source.[x1..x2, y1..y2] <- mask
-            
+            source.[y1..y2, x1..x2] <- mask
+
         let copy = (Matrix.cloneO {values = array2d}).values
-        array2d |> Array2D.iteri (fun x y v -> if v = 1 then sub copy mask (x, y) (maskCenterX, maskCenterY))
+        array2d |> Array2D.iteri (fun y x v -> if v = 1 then sub copy mask (x, y) (maskCenterX, maskCenterY))
 
         copy
 
@@ -163,15 +163,15 @@ module Algorithms =
     /// <returns>New array2d</returns>
     let erosion array2d mask (maskCenterX, maskCenterY) =
 
-        let sub source (copy: int [,]) mask (x, y) (maskCenterX, maskCenterY) =
+        let sub source (dest: int [,]) mask (x, y) (maskCenterX, maskCenterY) =
             let (x1, x2, y1, y2) = subArrayOfMaks source mask (x, y) (maskCenterX, maskCenterY)
-            let subArray2d = source.[x1..x2, y1..y2]
+            let subArray2d = source.[y1..y2, x1..x2]
 
             if contains subArray2d mask then
-                copy.[x, y] <- 1
+                dest.[y, x] <- 1
 
         let copy = (Matrix.cloneO {values = array2d}).values
-        array2d |> Array2D.iteri (fun x y v -> if v = 1 then sub array2d copy mask (x, y) (maskCenterX, maskCenterY))
+        array2d |> Array2D.iteri (fun y x v -> if v = 1 then sub array2d copy mask (x, y) (maskCenterX, maskCenterY))
 
         copy
 
@@ -218,7 +218,7 @@ module Algorithms =
     /// <param name="array2d2">array2d</param>
     /// <returns>Union</returns>
     let union array2d1 array2d2 = 
-        if Matrix.isEquallySized (Matrix.ofArray2D array2d1) (Matrix.ofArray2D array2d2) then
+        if Matrix.isEquallyArraySized array2d1 array2d2 then
             array2d1 |> Array2D.mapi (fun x y v -> v ||| array2d2.[x, y])
         else failwith "array2d1 is not equal to array2d2"
 
@@ -229,7 +229,7 @@ module Algorithms =
     /// <param name="array2d2">array2d</param>
     /// <returns>Intersection</returns>
     let intersection array2d1 array2d2 = 
-        if Matrix.isEquallySized (Matrix.ofArray2D array2d1) (Matrix.ofArray2D array2d2) then
+        if Matrix.isEquallyArraySized array2d1 array2d2 then
             array2d1 |> Array2D.mapi (fun x y v -> v &&& array2d2.[x, y])
         else failwith "array2d1 is not equal to array2d2"
 
@@ -248,7 +248,7 @@ module Algorithms =
     /// <param name="array2d2">array2d</param>
     /// <returns>Difference</returns>
     let difference array2d1 array2d2 = 
-        if Matrix.isEquallySized (Matrix.ofArray2D array2d1) (Matrix.ofArray2D array2d2) then
+        if Matrix.isEquallyArraySized array2d1 array2d2 then
             array2d1 |> Array2D.mapi (fun x y v -> if v <> array2d2.[x, y] then v else 0)
         else failwith "array2d1 is not equal to array2d2"
 

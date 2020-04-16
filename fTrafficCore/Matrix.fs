@@ -124,6 +124,16 @@ type Matrix = { values: int[,] }
 
             (dim1 = dim2)
 
+        /// <summary>Compare dimensions of matrices</summary>
+        /// <param name="array2d1">First matrix</param>
+        /// <param name="array2d2">Second matrix</param>
+        /// <returns>true if matrices have same sizes</returns>
+        static member isEquallyArraySized array2d1 array2d2 =
+            let dim1 = Matrix.sizes (Matrix.ofArray2D array2d1)
+            let dim2 = Matrix.sizes (Matrix.ofArray2D array2d2)
+
+            (dim1 = dim2)
+
         /// <summary>Compare matrices</summary>
         /// <param name="matrix1">First matrix</param>
         /// <param name="matrix2">Second matrix</param>
