@@ -2,6 +2,10 @@
 
 module Algorithms =
 
+    type Label =
+        | Point of label: int * coord: (int * int)
+        | Zero
+
     let markingOfConnectedComponents array2d =
 
         // up to 10 markers

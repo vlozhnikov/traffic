@@ -478,7 +478,7 @@ let MatrixTest5() =
     let r3 = Algorithms.borderAllocation a3 m3 (1, 1)
 
     printfn "origin = \n %A" a3
-    printfn "border = \n %A" r3*)
+    printfn "border = \n %A" r3
 
     //--------------------
 
@@ -504,13 +504,59 @@ let MatrixTest5() =
     printfn "marked = \n %A" r41
     printfn "erosion =\n %A" r42
 
+    let set = Set.ofSeq (r42 |> Seq.cast<int> |> Seq.filter ((<>)0))
+
     let r43 = (Matrix.cloneO {values = r41}).values
     r42
     |> Array2D.iteri (fun x y v -> if v = 1 then
                                         let label = r41.[x, y]
-                                        r41 |> Array2D.iteri (fun x1 y1 v1 -> if v1 = label then r43.[x1, y1] <- 1)
+                                        if not (set.Contains label) then
+                                            r41 |> Array2D.iteri (fun x1 y1 v1 -> if v1 = label then r43.[x1, y1] <- 1)
                      )
 
-    printfn "found =\n %A" r43
+    printfn "found =\n %A" r43*)
+
+    //--------------------
+
+    printfn "//--------------------"
+    let a6 = array2D [[0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0]
+                      [0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0]
+                      [0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0]
+                      [0;0;0;0;0;0;0;0;0;0;1;1;1;1;0;0]
+                      [1;1;1;1;0;0;0;0;0;1;1;1;1;1;1;0]
+                      [1;1;1;1;0;0;0;0;1;1;1;1;1;1;1;1]
+                      [1;1;1;1;0;0;0;0;1;1;1;1;1;1;1;1]
+                      [1;1;1;1;0;0;0;0;1;1;1;1;1;1;1;1]
+                      [1;1;1;1;0;0;0;0;0;1;1;1;1;1;1;0]
+                      [1;1;1;1;0;0;0;0;0;0;1;1;1;1;0;0]
+                      [1;1;1;1;0;0;0;0;0;0;0;0;0;0;0;0]
+                      [1;1;1;1;0;0;0;0;0;0;0;0;0;0;0;0]
+                      [1;1;1;1;0;0;1;1;1;0;0;0;0;0;0;0]
+                      [1;1;1;1;0;0;1;1;1;0;0;0;0;0;0;0]
+                      [1;1;1;1;0;0;1;1;1;0;0;0;0;0;0;0]
+                      [1;1;1;1;0;0;0;0;0;0;0;0;0;0;0;0]]
+
+    let r6 = Algorithms.markingOfConnectedComponents a6
+
+    let labels = r6 |>
+                    Array2D.mapi (fun x y v ->
+                                    if v <> 0 then
+                                        Point(label = v, coord = (x, y))
+                                    else Zero)
+                    |> Seq.cast<Label>
+                    |> Seq.filter ((<>)Zero)
+                    |> Seq.sortWith (fun a b -> 
+                                        match a, b with
+                                        | Point(label1, _), Point(label2, _) -> if label1 < label2 then -1 else 1
+                                        | _ -> 0)
+
+    printfn "origin = \n %A" a6
+    printfn "marked = \n %A" r6
+
+    labels
+    |> Seq.iter (function
+                 | Point(label, coord) -> printfn "label = %d, coord = %A" label coord
+                 | _ -> ()
+                )
 
     ()
