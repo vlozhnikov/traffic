@@ -1,6 +1,7 @@
 module TrafficCoreTests
 
 open fTrafficCore.Algorithms
+open System.Collections.Generic
 
 open NUnit.Framework
 open fTrafficCore
@@ -519,6 +520,8 @@ let MatrixTest5() =
     //--------------------
 
     printfn "//--------------------"
+
+    // исходная матрица с несколькими изображениями
     let a6 = array2D [[0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0]
                       [0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0]
                       [0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0]
@@ -536,27 +539,137 @@ let MatrixTest5() =
                       [1;1;1;1;0;0;1;1;1;0;0;0;0;0;0;0]
                       [1;1;1;1;0;0;0;0;0;0;0;0;0;0;0;0]]
 
-    let r6 = Algorithms.markingOfConnectedComponents a6
+    // маркируем связанные пиксели
+    let r61 = Algorithms.markingOfConnectedComponents a6
 
-    let labels = r6 |>
-                    Array2D.mapi (fun x y v ->
-                                    if v <> 0 then
-                                        Point(label = v, coord = (x, y))
-                                    else Zero)
-                    |> Seq.cast<Label>
-                    |> Seq.filter ((<>)Zero)
-                    |> Seq.sortWith (fun a b -> 
-                                        match a, b with
-                                        | Point(label1, _), Point(label2, _) -> if label1 < label2 then -1 else 1
-                                        | _ -> 0)
+    let matrixToLabels array2d =
+        let labels = array2d |>
+                        Array2D.mapi (fun x y v ->
+                                        if v <> 0 then
+                                            Point(label = v, coord = (x, y))
+                                        else Zero)
+                        |> Seq.cast<Label>
+                        |> Seq.filter ((<>)Zero)
+                        |> Seq.sortWith (fun a b -> 
+                                            match a, b with
+                                            | Point(label1, _), Point(label2, _) -> if label1 < label2 then -1 else 1
+                                            | _ -> 0)
+        labels
+
+    let labels = matrixToLabels r61
 
     printfn "origin = \n %A" a6
-    printfn "marked = \n %A" r6
+    printfn "marked = \n %A" r61
 
+    //labels
+    //|> Seq.iter (function
+                // | Point(label, coord) -> printfn "label = %d, coord = %A" label coord
+                // | _ -> ()
+                //)
+
+    // группируем по меткам
+    let groups = Dictionary<int, (int*int) list>()
     labels
     |> Seq.iter (function
-                 | Point(label, coord) -> printfn "label = %d, coord = %A" label coord
+                 | Point(label, coord) -> if not (groups.ContainsKey(label)) then
+                                              groups.Add(label, [coord])
+                                          else
+                                              groups.[label] <- coord::groups.[label]
                  | _ -> ()
                 )
+
+
+    let mapAreas = groups
+                   |> Seq.map (|KeyValue|)
+                   |> Map.ofSeq
+
+    // вычисляем площади фигур
+    let areas = mapAreas
+                |> Map.map (fun k v -> v |> List.length) // area is sum of point numbers
+    printfn "areas =\n %A" areas
+
+    // вырезаем отдельные фигуры помеченные метками
+    let subarrays = mapAreas
+                    |> Map.map (fun k v ->
+                                    let minRow = v |> List.map (fst) |> List.min
+                                    let maxRow = v |> List.map (fst) |> List.max
+                                    let minCol = v |> List.map (snd) |> List.min
+                                    let maxCol = v |> List.map (snd) |> List.max
+
+                                    let dimRow = maxRow - minRow + 2 + 1 // add two zeros on left and right sides
+                                    let dimCol = maxCol - minCol + 2 + 1
+
+                                    let array2d = Array2D.create dimRow dimCol 0
+                                    v |> List.iter (fun elem -> (array2d.[(fst elem) - minRow + 1, (snd elem) - minCol + 1] <- a6.[fst elem, snd elem]))
+
+                                    array2d
+                               )
+
+    // при помощи эррозии обознааем периметры фигур
+    let m6 = array2D [[0;1;0]
+                      [1;1;1]
+                      [0;1;0]]
+
+    let borders = subarrays
+                  |> Map.map (fun label array2d -> Algorithms.borderAllocation array2d m6 (1, 1))
+    let borderslength = borders |> Map.map (fun label elem -> elem |> Seq.cast<int> |> Seq.filter ((<>)0) |> Seq.length)
+
+    printfn "borders =\n %A" borders
+    printfn "borders length =\n %A" borderslength
+
+    // calculate the centers of gravity
+    //let centers = mapAreas
+                  //|> Map.map (fun k v ->
+                                //let centerRow = v |> List.map (fun f -> float (fst f)) |> List.average // list.average requires float
+                                //let centerCol = v |> List.map (fun f -> float (snd f)) |> List.average
+                                //(int centerCol, int centerRow)
+                             //)
+
+    // изем центры каждой фигуры
+    let centers = borders
+                   |> Map.map (fun k v ->
+                                 let centerRow = v |> Array2D.mapi (fun r _ _ -> float r) |> Seq.cast<float> |> Seq.average // list.average requires float
+                                 let centerCol = v |> Array2D.mapi (fun _ c _ -> float c) |> Seq.cast<float> |> Seq.average
+                                 (int centerCol, int centerRow)
+                              )
+    printfn "centers =\n %A" centers
+
+    // вычисляем округлость фигур
+    // C2 = μR / σR
+
+    // вычисляем расстояние между точками
+    let diff point1 point2 = 
+        let square x = x * x
+        let s1 = square ((fst point1) - (fst point2))
+        let s2 = square ((snd point1) - (snd point2))
+        sqrt(double (s1 + s2))
+
+    // 
+    let mr = borders
+             |> Map.map (fun label v ->
+                                let aver = v
+                                            |> Array2D.mapi (fun r c v -> diff (r, c) centers.[label])
+                                            |> Seq.cast<double>
+                                            |> Seq.sum
+                                aver / (double v.Length)
+                         )
+
+    let qr = borders
+             |> Map.map (fun label v ->
+                                let aver = v
+                                            |> Array2D.mapi (fun r c v ->
+                                                                let t1 = diff (r, c) centers.[label]
+                                                                let t2 = (t1 - mr.[label]) * (t1 - mr.[label])
+                                                                t2
+                                                            )
+                                            |> Seq.cast<double>
+                                            |> Seq.sum
+                                            |> sqrt
+                                aver / (double v.Length)
+                         )
+
+    // вычисляем округлость. чем выше коэффициент, тем круглее фигура
+    let roundness = mr |> Map.map (fun label v -> v / qr.[label])
+    printfn "roundness =\n %A" roundness
 
     ()
