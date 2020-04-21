@@ -479,104 +479,101 @@ let MatrixTest5() =
     let r3 = Algorithms.borderAllocation a3 m3 (1, 1)
 
     printfn "origin = \n %A" a3
-    printfn "border = \n %A" r3
+    printfn "border = \n %A" r3*)
 
     //--------------------
 
-    printfn "//--------------------"
-    let a5 = array2D [[0;0;0;0;0;0;0;0;0;0]
-                      [0;0;1;0;0;0;0;0;0;0]
-                      [0;1;1;1;0;0;0;1;0;0]
-                      [0;0;0;0;0;0;0;0;1;0]
-                      [0;0;0;0;1;0;0;0;0;0]
-                      [0;0;0;0;1;1;0;0;1;0]
-                      [0;0;0;1;1;1;1;0;1;0]
-                      [0;0;0;1;0;0;0;0;1;0]
-                      [0;0;0;0;0;0;0;1;1;0]
-                      [0;0;0;0;0;0;0;0;0;0]]
-    let m5 = array2D [[1]
-                      [1]
-                      [1]]
+    (*printfn "//--------------------"
+    // задаем оригинальное бинарное изображене
+    let origin = array2D [[0;0;0;0;0;0;0;0;0;0]
+                          [0;0;1;0;0;0;0;0;0;0]
+                          [0;1;1;1;0;0;0;1;0;0]
+                          [0;0;0;0;0;0;0;0;1;0]
+                          [0;0;0;0;1;0;0;0;0;0]
+                          [0;0;0;0;1;1;0;0;1;0]
+                          [0;0;0;1;1;1;1;0;1;0]
+                          [0;0;0;1;0;0;0;0;1;0]
+                          [0;0;0;0;0;0;0;1;1;0]
+                          [0;0;0;0;0;0;0;0;0;0]]
 
-    let r41 = Algorithms.markingOfConnectedComponents a5
-    let r42 = Algorithms.erosion a5 m5 (0, 1)
+    // задаем матрицу
+    let mask = array2D [[1]
+                        [1]
+                        [1]]
 
-    printfn "origin = \n %A" a5
-    printfn "marked = \n %A" r41
-    printfn "erosion =\n %A" r42
+    // ищем связные компоненты и маркируем их
+    let marked = Algorithms.markingOfConnectedComponents origin
+    // используем эрозию
+    let erosion = Algorithms.erosion origin mask (0, 1)
 
-    let set = Set.ofSeq (r42 |> Seq.cast<int> |> Seq.filter ((<>)0))
+    printfn "origin = \n %A" origin
+    printfn "marked = \n %A" marked
+    printfn "erosion =\n %A" erosion
 
-    let r43 = (Matrix.cloneO {values = r41}).values
-    r42
-    |> Array2D.iteri (fun x y v -> if v = 1 then
-                                        let label = r41.[x, y]
-                                        if not (set.Contains label) then
-                                            r41 |> Array2D.iteri (fun x1 y1 v1 -> if v1 = label then r43.[x1, y1] <- 1)
-                     )
+    // создаем множество для хранения найденных меток связных компонентов. используется для уменьшения итераций обработки изображения (мемоизация)
+    let set = erosion |> Seq.cast<int> |> Seq.filter ((<>)0) |> Set.ofSeq
 
-    printfn "found =\n %A" r43*)
+    // создаем пустую копию исходного изображения, в которую будем складывать результат
+    let copy = (Matrix.cloneO {values = marked}).values
+
+    // обрабатываем эрозийное изображение с целью восстановления цельных связанных компонентов
+    erosion
+    |> Array2D.iteri (fun row col v -> if v = 1 then
+                                            // получаем метку в найденном участке
+                                            let label = marked.[row, col]
+                                            if not (set.Contains label) then
+                                                // перебираем промаркированное изображение и если метки совпадают, то по полученным координатам заполняем копию единичками
+                                                marked |> Array2D.iteri (fun row1 col1 v1 -> if v1 = label then copy.[row1, col1] <- 1)
+                             )
+
+    printfn "copy =\n %A" copy*)
 
     //--------------------
 
     printfn "//--------------------"
 
     // исходная матрица с несколькими изображениями
-    let a6 = array2D [[0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0]
-                      [0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0]
-                      [0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0]
-                      [0;0;0;0;0;0;0;0;0;0;1;1;1;1;0;0]
-                      [1;1;1;1;0;0;0;0;0;1;1;1;1;1;1;0]
-                      [1;1;1;1;0;0;0;0;1;1;1;1;1;1;1;1]
-                      [1;1;1;1;0;0;0;0;1;1;1;1;1;1;1;1]
-                      [1;1;1;1;0;0;0;0;1;1;1;1;1;1;1;1]
-                      [1;1;1;1;0;0;0;0;0;1;1;1;1;1;1;0]
-                      [1;1;1;1;0;0;0;0;0;0;1;1;1;1;0;0]
-                      [1;1;1;1;0;0;0;0;0;0;0;0;0;0;0;0]
-                      [1;1;1;1;0;0;0;0;0;0;0;0;0;0;0;0]
-                      [1;1;1;1;0;0;1;1;1;0;0;0;0;0;0;0]
-                      [1;1;1;1;0;0;1;1;1;0;0;0;0;0;0;0]
-                      [1;1;1;1;0;0;1;1;1;0;0;0;0;0;0;0]
-                      [1;1;1;1;0;0;0;0;0;0;0;0;0;0;0;0]]
+    let multyBinImage = array2D [[0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0]
+                                 [0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0]
+                                 [0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0]
+                                 [0;0;0;0;0;0;0;0;0;0;1;1;1;1;0;0]
+                                 [1;1;1;1;0;0;0;0;0;1;1;1;1;1;1;0]
+                                 [1;1;1;1;0;0;0;0;1;1;1;1;1;1;1;1]
+                                 [1;1;1;1;0;0;0;0;1;1;1;1;1;1;1;1]
+                                 [1;1;1;1;0;0;0;0;1;1;1;1;1;1;1;1]
+                                 [1;1;1;1;0;0;0;0;0;1;1;1;1;1;1;0]
+                                 [1;1;1;1;0;0;0;0;0;0;1;1;1;1;0;0]
+                                 [1;1;1;1;0;0;0;0;0;0;0;0;0;0;0;0]
+                                 [1;1;1;1;0;0;0;0;0;0;0;0;0;0;0;0]
+                                 [1;1;1;1;0;0;1;1;1;0;0;0;0;0;0;0]
+                                 [1;1;1;1;0;0;1;1;1;0;0;0;0;0;0;0]
+                                 [1;1;1;1;0;0;1;1;1;0;0;0;0;0;0;0]
+                                 [1;1;1;1;0;0;0;0;0;0;0;0;0;0;0;0]]
 
     // маркируем связанные пиксели
-    let r61 = Algorithms.markingOfConnectedComponents a6
-
-    let matrixToLabels array2d =
-        let labels = array2d |>
-                        Array2D.mapi (fun x y v ->
-                                        if v <> 0 then
-                                            Point(label = v, coord = (x, y))
-                                        else Zero)
-                        |> Seq.cast<Label>
-                        |> Seq.filter ((<>)Zero)
-                        |> Seq.sortWith (fun a b -> 
-                                            match a, b with
-                                            | Point(label1, _), Point(label2, _) -> if label1 < label2 then -1 else 1
-                                            | _ -> 0)
-        labels
-
-    let labels = matrixToLabels r61
-
-    printfn "origin = \n %A" a6
-    printfn "marked = \n %A" r61
-
-    //labels
-    //|> Seq.iter (function
-                // | Point(label, coord) -> printfn "label = %d, coord = %A" label coord
-                // | _ -> ()
-                //)
+    let markedMultyImages = Algorithms.markingOfConnectedComponents multyBinImage
 
     // группируем по меткам
     let groups = Dictionary<int, (int*int) list>()
-    labels
-    |> Seq.iter (function
-                 | Point(label, coord) -> if not (groups.ContainsKey(label)) then
-                                              groups.Add(label, [coord])
-                                          else
-                                              groups.[label] <- coord::groups.[label]
-                 | _ -> ()
-                )
+    markedMultyImages
+    |> Array2D.iteri (fun row col v -> if v <> 0 then
+                                           if not (groups.ContainsKey(v)) then
+                                                groups.Add(v, [row, col])
+                                           else
+                                                groups.[v] <- (row, col)::groups.[v])
+
+    printfn "origin = \n %A" multyBinImage
+    printfn "marked = \n %A" markedMultyImages
+    printfn "groups = \n %A" groups
+
+    //multyLabels
+    //|> Seq.iter (function
+                // | Point(label, coord) -> if not (groups.ContainsKey(label)) then
+                //                              groups.Add(label, [coord])
+                //                          else
+                //                              groups.[label] <- coord::groups.[label]
+                // | _ -> ()
+                //)
 
 
     let mapAreas = groups
@@ -600,32 +597,26 @@ let MatrixTest5() =
                                     let dimCol = maxCol - minCol + 2 + 1
 
                                     let array2d = Array2D.create dimRow dimCol 0
-                                    v |> List.iter (fun elem -> (array2d.[(fst elem) - minRow + 1, (snd elem) - minCol + 1] <- a6.[fst elem, snd elem]))
+                                    v |> List.iter (fun elem -> (array2d.[(fst elem) - minRow + 1, (snd elem) - minCol + 1] <- multyBinImage.[fst elem, snd elem]))
 
                                     array2d
                                )
 
-    // при помощи эррозии обознааем периметры фигур
-    let m6 = array2D [[0;1;0]
-                      [1;1;1]
-                      [0;1;0]]
+    printfn "subarrays =\n %A" subarrays
+
+    // выделяем периметры фигур и вычисляем их длины
+    let erosionMaks = array2D [[0;1;0]
+                               [1;1;1]
+                               [0;1;0]]
 
     let borders = subarrays
-                  |> Map.map (fun label array2d -> Algorithms.borderAllocation array2d m6 (1, 1))
-    let borderslength = borders |> Map.map (fun label elem -> elem |> Seq.cast<int> |> Seq.filter ((<>)0) |> Seq.length)
+                  |> Map.map (fun label array2d -> Algorithms.borderAllocation array2d erosionMaks (1, 1))
+    let bordersLength = borders |> Map.map (fun label elem -> elem |> Seq.cast<int> |> Seq.filter ((<>)0) |> Seq.length)
 
     printfn "borders =\n %A" borders
-    printfn "borders length =\n %A" borderslength
+    printfn "borders length =\n %A" bordersLength
 
-    // calculate the centers of gravity
-    //let centers = mapAreas
-                  //|> Map.map (fun k v ->
-                                //let centerRow = v |> List.map (fun f -> float (fst f)) |> List.average // list.average requires float
-                                //let centerCol = v |> List.map (fun f -> float (snd f)) |> List.average
-                                //(int centerCol, int centerRow)
-                             //)
-
-    // изем центры каждой фигуры
+    // ищем центры каждой фигуры
     let centers = borders
                    |> Map.map (fun k v ->
                                  let centerRow = v |> Array2D.mapi (fun r _ _ -> float r) |> Seq.cast<float> |> Seq.average // list.average requires float
