@@ -414,8 +414,8 @@ let MatrixTest4() =
 
 
 [<Test>]
-let MatrixTest5() =
-    (*let a1 = array2D [[0;0;0;0;0;0;0;0]
+let BinaryMorphologyTest() =
+    let a1 = array2D [[0;0;0;0;0;0;0;0]
                       [1;1;1;1;1;1;1;0]
                       [0;0;0;1;1;1;1;0]
                       [0;0;0;1;1;1;1;0]
@@ -479,11 +479,11 @@ let MatrixTest5() =
     let r3 = Algorithms.borderAllocation a3 m3 (1, 1)
 
     printfn "origin = \n %A" a3
-    printfn "border = \n %A" r3*)
+    printfn "border = \n %A" r3
 
     //--------------------
 
-    (*printfn "//--------------------"
+    printfn "//--------------------"
     // задаем оригинальное бинарное изображене
     let origin = array2D [[0;0;0;0;0;0;0;0;0;0]
                           [0;0;1;0;0;0;0;0;0;0]
@@ -526,7 +526,7 @@ let MatrixTest5() =
                                                 marked |> Array2D.iteri (fun row1 col1 v1 -> if v1 = label then copy.[row1, col1] <- 1)
                              )
 
-    printfn "copy =\n %A" copy*)
+    printfn "copy =\n %A" copy
 
     //--------------------
 
