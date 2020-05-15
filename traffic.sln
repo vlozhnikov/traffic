@@ -11,6 +11,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "TrafficCoreTests", "Traffic
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpTests", "CSharpTests\CSharpTests.csproj", "{884689CD-829C-4C83-B794-99AD4BEB85F8}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "OpenCVView", "OpenCVView\OpenCVView.fsproj", "{03708DC0-D701-4E0C-9768-9683264295D9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,5 +39,9 @@ Global
 		{884689CD-829C-4C83-B794-99AD4BEB85F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{884689CD-829C-4C83-B794-99AD4BEB85F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{884689CD-829C-4C83-B794-99AD4BEB85F8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{03708DC0-D701-4E0C-9768-9683264295D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{03708DC0-D701-4E0C-9768-9683264295D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{03708DC0-D701-4E0C-9768-9683264295D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{03708DC0-D701-4E0C-9768-9683264295D9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
