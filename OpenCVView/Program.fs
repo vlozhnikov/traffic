@@ -1,9 +1,42 @@
 ﻿// Learn more about F# at http://fsharp.org
 open OpenCvSharp
 open Microsoft.FSharp.NativeInterop
-open fTrafficCore
 
-open System
+// функция для вычисления гистограммы изображение
+let getHistogram (mat: Mat) =
+    let hx = Array.zeroCreate<int> 256
+    mat.ForEachAsByte(fun value _ ->
+                           let v = int (NativePtr.get value 0)
+                           hx.[v] <- hx.[v] + 1)
+    hx
+
+// функция для вычисления функции распределения гистограммы
+let getCdx hx =
+    hx |> Array.mapi (fun x _ -> if x > 0 then hx.[0..(x-1)] |> Array.sum else 0)
+
+// рисуем гистограмму и функцию распределения
+let drawHistogramAndCdx hx cdx (mat: Mat) =
+    let histoWidth = 256
+    let histoHeight = 256
+
+    // получаем максимальную величину функиции распределения
+    let cdxMax = cdx |> Array.max
+    // вычисляем поправочной коэффициент для сжатия (или растяжения)
+    // функции распределения в гистограмме
+    let cdxK = float(histoHeight)/float(cdxMax)
+
+    let histMax = hx |> Array.max
+    let histK = float(histoHeight)/float(histMax)
+    
+    let histMat = new Mat(histoWidth, histoHeight, MatType.CV_8UC4)
+    hx
+    |> Array.iteri (fun x v ->
+                        let histDy = int(float(v)*histK)
+                        let cdxDy = int(float(cdx.[x])*cdxK)
+                        // рисуем гистограмму h(x)
+                        mat.Line(x, histoHeight-1, x, histoHeight-1-histDy, Scalar.White)
+                        // рисуем функцию распределения cdx(x)
+                        mat.Circle(x, histoHeight-cdxDy, 1, Scalar.Blue))
 
 [<EntryPoint>]
 let main argv =
@@ -11,45 +44,60 @@ let main argv =
     let histoWidth = 256
     let histoHeight = 256
 
-    let src = new Mat("cat.jpg", ImreadModes.Grayscale)
-    //let src = Cv2.ImRead("cat.jpg", ImreadModes.Grayscale)
-
-    let in1 = InputArray.Create(src)
-    //let in2 = OutputArray.Create(histogram)
-
-    //Cv2.Canny(in1, in2, 50., 200.)
-    //Cv2.EqualizeHist(in1, in2)
+    let src = Cv2.ImRead("road.png", ImreadModes.Grayscale)
+    let equalizeImage = new Mat(src.Rows, src.Cols, MatType.CV_8UC1)
 
     // calculate histogram h(x)
-    let hx = Array.zeroCreate 256
-    src.ForEachAsByte(fun value position ->
-                           let v = int (NativePtr.get value 0)
-                           hx.[v] <- hx.[v] + 1)
+    let hx = getHistogram src
 
     // calculate cdf(x) = h(0) + h(1) + .. + h(x)
-    let cdx = Array.zeroCreate 256
-    hx |> Array.iteri (fun x v -> if x > 0 then cdx.[x] <- cdx.[x-1] + v)
-    let cdxMax = cdx |> Array.max
-    let cdxK = float(histoHeight)/float(cdxMax)
-
-    let histMax = hx |> Array.max
-    let histMin = hx |> Array.filter(fun v -> v > 0) |> Array.min
-    let histK = float(histoHeight)/float(histMax)
+    let cdx = getCdx hx
 
     // draw histogram
     let histMat = new Mat(histoWidth, histoHeight, MatType.CV_8UC4)
-    hx
-    |> Array.iteri (fun x v ->
-                        let histDy = int(float(v)*histK)
-                        let cdxDy = int(float(cdx.[x])*cdxK)
-                        // draw h(x)
-                        histMat.Line(x, histoHeight-1, x, histoHeight-1-histDy, Scalar.White)
-                        // draw cdx(x)
-                        histMat.Circle(x, histoHeight-cdxDy, 1, Scalar.Blue))
+    drawHistogramAndCdx hx cdx histMat
 
+    // equalize the histogram
+    let cdxMin = cdx |> Array.filter (fun v -> v > 0) |> Array.min
+    let totalPixels = src.Rows * src.Cols
+
+    for y in 0..src.Rows do
+        for x in 0..src.Cols do
+            let s = int(src.At<byte>(y, x))
+            let fx = (float(cdx.[s]) - float(cdxMin))/(float(totalPixels - 1))*255.
+            //equalizeImage.Set<Scalar>(y, x, new Scalar(double(fx)))
+            equalizeImage.Circle(x, y, 1, new Scalar(double(fx)))
+
+    // calculate equalize histogram
+    let hx2 = getHistogram equalizeImage
+    let cdx2 = getCdx hx2
+
+    let histMat2 = new Mat(histoWidth, histoHeight, MatType.CV_8UC4)
+    drawHistogramAndCdx hx2 cdx2 histMat2
+
+    // opencv equalize histogram
+    let opencCVImage = new Mat(src.Rows, src.Cols, MatType.CV_8UC1)
+    let in1 = InputArray.Create(src)
+    let in2 = OutputArray.Create(opencCVImage)
+
+    Cv2.EqualizeHist(in1, in2)
+
+    // get opencv histogram
+    let hx3 = getHistogram opencCVImage
+    let cdx3 = getCdx hx3
+
+    let histMat3 = new Mat(histoWidth, histoHeight, MatType.CV_8UC4)
+    drawHistogramAndCdx hx3 cdx2 histMat3
+
+    // show results
     use w1 = new Window("original image", src)
-    //use w2 = new Window("opencv equalize histogram image", dst)
-    use w3 = new Window("custom equalize histogram image", histMat)
+    use w2 = new Window("original histogram", histMat)
+
+    use w3 = new Window("custom equalize image", equalizeImage)
+    use w4 = new Window("custom equalize histogram", histMat2)
+
+    use w5 = new Window("opencv equalize image", opencCVImage)
+    use w6 = new Window("opencv equalize histogram", histMat3)
 
     Cv2.WaitKey() |> ignore
 
