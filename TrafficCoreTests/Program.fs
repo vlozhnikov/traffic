@@ -3,5 +3,6 @@ open TrafficCoreTests
 module Program =
     [<EntryPoint>]
     let main _ =
-        BinaryMorphologyTest()
+        //BinaryMorphologyTest()
+        BuildersTest()
         0

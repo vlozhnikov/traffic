@@ -664,3 +664,32 @@ let BinaryMorphologyTest() =
     printfn "roundness =\n %A" roundness
 
     ()
+
+[<Test>]
+let BuildersTest() =
+
+    let stroke1 n =
+        if n = 0 then 'O' else 'A'
+
+    let stroke2 n =
+        if n = 0 then '8' else 'B'
+
+    let stroke3 = function
+        | 0 -> '*'
+        | 2 -> 'X'
+        | 4 -> 'W'
+
+    let mainAxis = function
+        | 0 -> '-'
+        | 60 -> '/'
+        | 90 -> '|'
+
+    let inertia m a s =
+        if m = 0 then (mainAxis a) else (stroke3 s)
+
+    let holes h m n =
+        match h with
+        | 0 -> inertia m
+        //| 1 -> stroke1 n
+        //| 2 -> stroke2 n
+    ()

@@ -7,8 +7,8 @@
     <Compile Include="Program.fs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="OpenCvSharp4" Version="4.3.0.20200421" />
-    <PackageReference Include="OpenCvSharp4.runtime.osx.10.15-x64" Version="4.3.0.20200421" />
+    <PackageReference Include="OpenCvSharp4" Version="4.5.1.20201229" />
+    <PackageReference Include="OpenCvSharp4.runtime.osx.10.15-x64" Version="4.5.1.20201226" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\fTrafficCore\fTrafficCore.fsproj" />
