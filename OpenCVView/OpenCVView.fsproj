@@ -9,6 +9,9 @@
   <ItemGroup>
     <PackageReference Include="OpenCvSharp4" Version="4.5.1.20201229" />
     <PackageReference Include="OpenCvSharp4.runtime.osx.10.15-x64" Version="4.5.1.20201226" />
+    <PackageReference Include="FSharp.Charting" Version="2.1.0">
+      <GeneratePathProperty></GeneratePathProperty>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\fTrafficCore\fTrafficCore.fsproj" />

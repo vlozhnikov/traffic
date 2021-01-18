@@ -8,6 +8,7 @@ let getHistogram (mat: Mat) =
     mat.ForEachAsByte(fun value _ ->
                            let v = int (NativePtr.get value 0)
                            hx.[v] <- hx.[v] + 1)
+
     hx
 
 // функция для вычисления функции распределения гистограммы
@@ -45,6 +46,7 @@ let main argv =
     let histoHeight = 256
 
     let src = Cv2.ImRead("road.png", ImreadModes.Grayscale)
+    //let src = Cv2.ImRead("road.png", ImreadModes.Color)
     let equalizeImage = new Mat(src.Rows, src.Cols, MatType.CV_8UC1)
 
     // calculate histogram h(x)
