@@ -2,6 +2,8 @@
 open OpenCvSharp
 open Microsoft.FSharp.NativeInterop
 
+open FSharp.Charting
+
 // функция для вычисления гистограммы изображение
 let getHistogram (mat: Mat) =
     let hx = Array.zeroCreate<int> 256
@@ -10,6 +12,24 @@ let getHistogram (mat: Mat) =
                            hx.[v] <- hx.[v] + 1)
 
     hx
+
+let getColoredHistogram (mat:Mat) =
+    let rhx = Array.zeroCreate<int> 256
+    let ghx = Array.zeroCreate<int> 256
+    let bhx = Array.zeroCreate<int> 256
+
+    mat.ForEachAsVec3b(fun value _ ->
+                            let byRef = NativePtr.toByRef value
+                            let r = int byRef.Item0
+                            let g = int byRef.Item1
+                            let b = int byRef.Item2
+
+                            rhx.[r] <- rhx.[r] + 1
+                            ghx.[g] <- ghx.[g] + 1
+                            bhx.[b] <- bhx.[b] + 1
+    )
+    
+    (rhx, ghx, bhx)
 
 // функция для вычисления функции распределения гистограммы
 let getCdx hx =
@@ -45,15 +65,26 @@ let main argv =
     let histoWidth = 256
     let histoHeight = 256
 
-    let src = Cv2.ImRead("road.png", ImreadModes.Grayscale)
-    //let src = Cv2.ImRead("road.png", ImreadModes.Color)
-    let equalizeImage = new Mat(src.Rows, src.Cols, MatType.CV_8UC1)
+    //let src = Cv2.ImRead("road.png", ImreadModes.Grayscale)
+    let src = Cv2.ImRead("cat.jpg", ImreadModes.Color)
+    //let equalizeImage = new Mat(src.Rows, src.Cols, MatType.CV_8UC1)
+    let equalizeImage = new Mat(src.Rows, src.Cols, MatType.CV_8UC3)
 
     // calculate histogram h(x)
-    let hx = getHistogram src
+    //let hx = getHistogram src
+
+    let (rhx, ghx, bhx) = getColoredHistogram src
+
+    Chart.Combine(
+        [Chart.Line(rhx, Name = "R - chanel");
+        Chart.Line(ghx, Name = "G - chanel");
+        Chart.Line(bhx, Name = "B - chanel")]
+    ) |> ignore
+
+    //Chart.ShowAll([rhx |> Chart.Column; ghx |> Chart.Column; bhx |> Chart.Column])
 
     // calculate cdf(x) = h(0) + h(1) + .. + h(x)
-    let cdx = getCdx hx
+    (*let cdx = getCdx hx
 
     // draw histogram
     let histMat = new Mat(histoWidth, histoHeight, MatType.CV_8UC4)
@@ -99,7 +130,7 @@ let main argv =
     use w4 = new Window("custom equalize histogram", histMat2)
 
     use w5 = new Window("opencv equalize image", opencCVImage)
-    use w6 = new Window("opencv equalize histogram", histMat3)
+    use w6 = new Window("opencv equalize histogram", histMat3)*)
 
     Cv2.WaitKey() |> ignore
 
