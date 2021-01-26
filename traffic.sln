@@ -1,17 +1,20 @@
-
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "traffic", "traffic\traffic.fsproj", "{8949D226-CEFD-4B89-9142-88123D9C4CCB}"
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30907.101
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "traffic", "traffic\traffic.fsproj", "{8949D226-CEFD-4B89-9142-88123D9C4CCB}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "fTrafficCore", "fTrafficCore\fTrafficCore.fsproj", "{3EFCF29D-D2D2-43AC-AA6A-08E28E7913B1}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "fTrafficCore", "fTrafficCore\fTrafficCore.fsproj", "{3EFCF29D-D2D2-43AC-AA6A-08E28E7913B1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TerminalView", "TerminalView\TerminalView.csproj", "{BA5C6CF1-A125-4708-8685-A7D4D502BCC9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TerminalView", "TerminalView\TerminalView.csproj", "{BA5C6CF1-A125-4708-8685-A7D4D502BCC9}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "TrafficCoreTests", "TrafficCoreTests\TrafficCoreTests.fsproj", "{64A843CD-1824-4E04-B3B4-F9DFA7BC0930}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "TrafficCoreTests", "TrafficCoreTests\TrafficCoreTests.fsproj", "{64A843CD-1824-4E04-B3B4-F9DFA7BC0930}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpTests", "CSharpTests\CSharpTests.csproj", "{884689CD-829C-4C83-B794-99AD4BEB85F8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSharpTests", "CSharpTests\CSharpTests.csproj", "{884689CD-829C-4C83-B794-99AD4BEB85F8}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "OpenCVView", "OpenCVView\OpenCVView.fsproj", "{03708DC0-D701-4E0C-9768-9683264295D9}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "OpenCVView", "OpenCVView\OpenCVView.fsproj", "{03708DC0-D701-4E0C-9768-9683264295D9}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "opencvwin", "ConsoleApplication1\opencvwin.fsproj", "{4CB3E966-12A0-4E05-A665-F6D4B4D2333A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -43,5 +46,15 @@ Global
 		{03708DC0-D701-4E0C-9768-9683264295D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{03708DC0-D701-4E0C-9768-9683264295D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{03708DC0-D701-4E0C-9768-9683264295D9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4CB3E966-12A0-4E05-A665-F6D4B4D2333A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4CB3E966-12A0-4E05-A665-F6D4B4D2333A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4CB3E966-12A0-4E05-A665-F6D4B4D2333A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4CB3E966-12A0-4E05-A665-F6D4B4D2333A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FF554AE4-E2CF-4B05-A757-BDEA33BFFC7B}
 	EndGlobalSection
 EndGlobal

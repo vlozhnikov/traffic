@@ -1,6 +1,7 @@
 ﻿// Learn more about F# at http://fsharp.org
 open OpenCvSharp
 open Microsoft.FSharp.NativeInterop
+open System.Drawing
 
 open FSharp.Charting
 
@@ -66,9 +67,9 @@ let main argv =
     let histoHeight = 256
 
     //let src = Cv2.ImRead("road.png", ImreadModes.Grayscale)
-    let src = Cv2.ImRead("cat.jpg", ImreadModes.Color)
+    let src = Cv2.ImRead("kartoplya.jpg", ImreadModes.Color)
     //let equalizeImage = new Mat(src.Rows, src.Cols, MatType.CV_8UC1)
-    let equalizeImage = new Mat(src.Rows, src.Cols, MatType.CV_8UC3)
+    //let equalizeImage = new Mat(src.Rows, src.Cols, MatType.CV_8UC3)
 
     // calculate histogram h(x)
     //let hx = getHistogram src
@@ -76,10 +77,10 @@ let main argv =
     let (rhx, ghx, bhx) = getColoredHistogram src
 
     Chart.Combine(
-        [Chart.Line(rhx, Name = "R - chanel");
-        Chart.Line(ghx, Name = "G - chanel");
-        Chart.Line(bhx, Name = "B - chanel")]
-    ) |> ignore
+        [Chart.Line(rhx, Name = "R - chanel", Color = Color.Red);
+        Chart.Line(ghx, Name = "G - chanel", Color = Color.Green);
+        Chart.Line(bhx, Name = "B - chanel", Color = Color.Blue)]
+    ) |> Chart.Show
 
     //Chart.ShowAll([rhx |> Chart.Column; ghx |> Chart.Column; bhx |> Chart.Col
 
