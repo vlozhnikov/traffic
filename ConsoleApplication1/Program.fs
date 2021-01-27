@@ -4,13 +4,15 @@ open Microsoft.FSharp.NativeInterop
 open System.Drawing
 
 open FSharp.Charting
+open System
 
 // функция для вычисления гистограммы изображение
 let getHistogram (mat: Mat) =
     let hx = Array.zeroCreate<int> 256
     mat.ForEachAsByte(fun value _ ->
-                           let v = int (NativePtr.get value 0)
-                           hx.[v] <- hx.[v] + 1)
+                            let byRef = NativePtr.toByRef value
+                            let v = int byRef
+                            hx.[v] <- hx.[v] + 1)
 
     hx
 
@@ -63,76 +65,52 @@ let drawHistogramAndCdx hx cdx (mat: Mat) =
 [<EntryPoint>]
 let main argv =
 
-    let histoWidth = 256
-    let histoHeight = 256
+    //let src1 = Cv2.ImRead("C:/Users/vladi/OneDrive/Desktop/i/1.jpg", ImreadModes.Color)
+    //let src2 = Cv2.ImRead("C:/Users/vladi/OneDrive/Desktop/i/2.png", ImreadModes.Color)
 
-    //let src = Cv2.ImRead("road.png", ImreadModes.Grayscale)
-    let src = Cv2.ImRead("kartoplya.jpg", ImreadModes.Color)
-    //let equalizeImage = new Mat(src.Rows, src.Cols, MatType.CV_8UC1)
-    //let equalizeImage = new Mat(src.Rows, src.Cols, MatType.CV_8UC3)
+    let src1 = Cv2.ImRead("C:/Users/vladi/OneDrive/Desktop/i/1.jpeg", ImreadModes.Grayscale)
+    let src2 = Cv2.ImRead("C:/Users/vladi/OneDrive/Desktop/i/2.png", ImreadModes.Grayscale)
 
-    // calculate histogram h(x)
-    //let hx = getHistogram src
+    //let (rhx, ghx, bhx) = getColoredHistogram src
 
-    let (rhx, ghx, bhx) = getColoredHistogram src
+    let ghx1 = getHistogram src1
+    let ghx2 = getHistogram src2
 
+    let cdx1 = getCdx ghx1
+    let cdx2 = getCdx ghx2
+
+    (*
     Chart.Combine(
+        [
+        Chart.Line(ghx1, Name = "1.jpg", Color = Color.Red);
+        Chart.Line(ghx2, Name = "2.png", Color = Color.Green);
+        ]
+    ) |> Chart.Show
+    *)
+
+    async {
+        Chart.Combine([
+                Chart.Column(ghx1, Name = "1.jpg", Color = Color.Red);
+                Chart.Line(cdx1, Name = "cdx", Color = Color.Blue);
+            ]
+        ) |> Chart.Show
+    } |> Async.Start 
+
+    async {
+        Chart.Combine([
+            Chart.Column(ghx1, Name = "2.png", Color = Color.Red);
+            Chart.Line(cdx2, Name = "cdx", Color = Color.Blue);
+            ]
+        ) |> Chart.Show
+    } |> Async.Start
+
+    (*Chart.Combine(
         [Chart.Line(rhx, Name = "R - chanel", Color = Color.Red);
         Chart.Line(ghx, Name = "G - chanel", Color = Color.Green);
         Chart.Line(bhx, Name = "B - chanel", Color = Color.Blue)]
-    ) |> Chart.Show
+    ) |> Chart.Show*)
 
-    //Chart.ShowAll([rhx |> Chart.Column; ghx |> Chart.Column; bhx |> Chart.Col
-
-    // calculate cdf(x) = h(0) + h(1) + .. + h(x)
-    (*let cdx = getCdx hx
-
-    // draw histogram
-    let histMat = new Mat(histoWidth, histoHeight, MatType.CV_8UC4)
-    drawHistogramAndCdx hx cdx histMat
-
-    // equalize the histogram
-    let cdxMin = cdx |> Array.filter (fun v -> v > 0) |> Array.min
-    let totalPixels = src.Rows * src.Cols
-
-    for y in 0..src.Rows do
-        for x in 0..src.Cols do
-            let s = int(src.At<byte>(y, x))
-            let fx = (float(cdx.[s]) - float(cdxMin))/(float(totalPixels - 1))*255.
-            //equalizeImage.Set<Scalar>(y, x, new Scalar(double(fx)))
-            equalizeImage.Circle(x, y, 1, new Scalar(double(fx)))
-
-    // calculate equalize histogram
-    let hx2 = getHistogram equalizeImage
-    let cdx2 = getCdx hx2
-
-    let histMat2 = new Mat(histoWidth, histoHeight, MatType.CV_8UC4)
-    drawHistogramAndCdx hx2 cdx2 histMat2
-
-    // opencv equalize histogram
-    let opencCVImage = new Mat(src.Rows, src.Cols, MatType.CV_8UC1)
-    let in1 = InputArray.Create(src)
-    let in2 = OutputArray.Create(opencCVImage)
-
-    Cv2.EqualizeHist(in1, in2)
-
-    // get opencv histogram
-    let hx3 = getHistogram opencCVImage
-    let cdx3 = getCdx hx3
-
-    let histMat3 = new Mat(histoWidth, histoHeight, MatType.CV_8UC4)
-    drawHistogramAndCdx hx3 cdx2 histMat3
-
-    // show results
-    use w1 = new Window("original image", src)
-    use w2 = new Window("original histogram", histMat)
-
-    use w3 = new Window("custom equalize image", equalizeImage)
-    use w4 = new Window("custom equalize histogram", histMat2)
-
-    use w5 = new Window("opencv equalize image", opencCVImage)
-    use w6 = new Window("opencv equalize histogram", histMat3)*)
-
-    Cv2.WaitKey() |> ignore
+    Console.Read() |> ignore
+    //Cv2.WaitKey() |> ignore
 
     0 // return an integer exit code
